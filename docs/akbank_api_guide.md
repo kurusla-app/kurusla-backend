@@ -3,7 +3,7 @@
 Bu döküman, Kuruşla mikro-birikim projesi için Akbank API Portal üzerinden erişilebilen tüm servislerin detaylı analizini ve projemizle olan ilişkisini içermektedir.
 
 ## 1. Genel Bilgiler
-- **Geliştirici Portalı:** [Akbank API Portal](https://apiportal.akbank.com/)
+- **Geliştirici Portalı:** [Akbank API Portal](https://apiportal.akbank.com/apis)
 - **Erişim Türü:** Proje kapsamında incelenen API'lerin çoğu "Private" (Özel) statüsündedir ve Akbank ile iş ortaklığı gerektirir.
 - **Güvenlik:** Tüm isteklerde `Ocp-Apim-Subscription-Key` başlığı (header) zorunludur.
 
@@ -54,7 +54,8 @@ Sentetik verilerimiz, Akbank API standartlarına uygun hale getirilmiştir:
 ---
 
 ## 4. Kullanım Senaryosu (Kuruşla Akışı)
-1. **Veri Çekme:** `ToslaTransactionList` ile harcamalar periyodik olarak kontrol edilir.
-2. **Hesaplama:** Harcama tutarı (örn: 14.20 TL) bir üst tam sayıya yuvarlanır (0.80 TL fark).
-3. **Değerleme:** `FundPrices` ile bu 0.80 TL'nin seçili fondaki karşılığı hesaplanır.
-4. **Aktarım:** `InsuranceRefundAccountList` ile belirlenen BES hesabına birikim talimatı tetiklenir (Simüle edilir).
+1. **Veri Çekme:** `ToslaTransactionList` ile harcamalar periyodik olarak kontrol edilir (Örn: 150 TL'lik kahve harcaması).
+2. **Kural Uygulama:** Kullanıcının önceden belirlediği kural (Örn: "0-200 TL arası harcamalarda %10 biriktir") backend tarafında işletilir. 
+3. **Hesaplama:** Harcama tutarı üzerinden birikim miktarı hesaplanır (Örn: 150 TL'nin %10'u olan 15 TL).
+4. **Aktarım:** `InsuranceRefundAccountList` ile belirlenen BES veya hedef potuna 15 TL'lik birikim talimatı tetiklenir (Simüle edilir).
+5. **Değerleme:** `FundPrices` ile biriken bu tutarların (15 TL) seçili fonlardaki güncel değeri kullanıcıya gösterilir.
