@@ -21,6 +21,12 @@ Backend altyapısı, verinin kaynağı (gerçek API veya sentetik JSON) fark etm
 - `reqDate`: İşlem tarihi.
 - `transactionDescription`: İşlem noktası ve detay bilgisi.
 
+## 📡 Veri Giriş Kanalları
+Sistem, harcama verilerini farklı kanallardan alabilmektedir:
+1. **Akbank API Entegrasyonu:** Gerçek zamanlı Tosla ve Kart harcamaları.
+2. **Make.com E-posta İşleme:** Banka harcama maillerinin otomatik parse edilmesi.
+   - Detaylar için: [Make.com İş Akışı Dökümanı](docs/make_workflow.md)
+
 ## 📝 Yol Haritası
 1. **Veri Entegrasyonu:** Sentetik verilerin Akbank API üzerinden canlı veriyle yer değiştirmesi için gerekli servislerin yazılması.
 2. **Kural Motoru (Rule Engine):** Kullanıcı tanımlı karmaşık birikim kurallarının işlenmesi.
