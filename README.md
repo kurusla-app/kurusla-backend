@@ -1,33 +1,50 @@
-# Kuruşla - Backend Altyapısı
+# Kurusla - Backend API (Python)
 
-Kuruşla, Z kuşağına yönelik modern bir "mikro-birikim" fintech çözümüdür. Kullanıcıların günlük harcamalarını analiz ederek, arta kalan kuruşları otomatik olarak yatırım veya emeklilik fonlarına (BES) yönlendirir.
+**Kurusla**, kullanıcıların harcamalarını takip ederek otomatik birikim yapmasını sağlayan bir fintech çözümüdür. Bu v2.0 sürümü, **Python** ve **FastAPI** ile geliştirilerek AI süreçlerine tam uyumlu hale getirilmiştir.
 
-## 🚀 Proje Hakkında
-Bu depo (repository), Kuruşla projesinin backend mantığını, veri işleme süreçlerini ve Akbank API entegrasyonu simülasyonlarını içermektedir.
+## 🎯 Proje Özeti
+Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya yüzde bazlı) göre birikim hesaplar ve tasarruf potlarına (BES/Hayal) aktarır.
 
-### Temel Özellikler
-- **Kural Bazlı Birikim (Rule-Based Saving):** Kullanıcının belirlediği kurallara göre (Örn: "0-200 TL arası harcamalarda %10 biriktir") harcamalardan tasarruf oluşturulması.
-- **Akbank API Uyumluluğu:** Altyapı, Akbank API portalındaki gerçek servislerin (Tosla, Yatırım Fonları, AgeSA) veri yapılarıyla tam uyumlu tasarlanmıştır.
-- **Hibrit Veri Modeli:** Proje, gerçek bir API entegrasyonuna hazır olmakla birlikte, geliştirme ve test sürecinde Akbank standartlarına göre hazırlanmış **Sentetik Veri Seti** kullanmaktadır.
+## ✨ Özellikler (V2.0)
+- **FastAPI Framework**: Yüksek performanslı ve modern backend.
+- **Smart Rule Engine**: Gelişmiş yüzde ve yuvarlama hesaplamaları.
+- **AI Integration Support**: Python ekosistemi sayesinde yapay zeka entegrasyonu hazır.
+- **Pydantic Validation**: Tüm istekler (requests) sıkı tip kontrolünden geçer.
 
-## 📁 Klasör Yapısı
-- `data/synthetic_transactions/`: Akbank `ToslaTransactionList` standartlarına göre yapılandırılmış sentetik harcama verileri.
-- `docs/`: 
-  - `akbank_api_guide.md`: Akbank API portalındaki servislerin detaylı Türkçe dökümantasyonu ve veri eşleşmeleri.
+## 🛠️ Teknoloji Stack'i
+- **Language**: Python 3.10+
+- **Framework**: FastAPI
+- **WebServer**: Uvicorn
+- **Validation**: Pydantic
+- **AI/LLM Support**: LangChain, OpenAI/Gemini (Planlanıyor)
 
-## 🛠️ Teknik Altyapı ve Veri
-Backend altyapısı, verinin kaynağı (gerçek API veya sentetik JSON) fark etmeksizin aynı mantıkla çalışacak şekilde kurgulanmıştır. Kullanılan ana veri alanları:
-- `transactionAmount`: Harcama tutarı (Kural hesaplamaları için ana girdi).
-- `reqDate`: İşlem tarihi.
-- `transactionDescription`: İşlem noktası ve detay bilgisi.
+## 📁 Proje Yapısı
+```
+kurusla-backend/
+├── app/
+│   ├── main.py              # Uygulama giriş noktası
+│   ├── services/            # İş mantığı servisleri
+│   │   └── savings_service.py # Birikim hesaplama motoru
+├── tests/                   # Python testleri
+│   └── test_savings.py      # Birikim motoru testi
+├── requirements.txt         # Bağımlılıklar
+└── README.md
+```
 
-## 📡 Veri Giriş Kanalları
-Sistem, harcama verilerini farklı kanallardan alabilmektedir:
-1. **Akbank API Entegrasyonu:** Gerçek zamanlı Tosla ve Kart harcamaları.
-2. **Make.com E-posta İşleme:** Banka harcama maillerinin otomatik parse edilmesi.
-   - Detaylar için: [Make.com İş Akışı Dökümanı](docs/make_workflow.md)
+## 🚀 Kurulum ve Çalıştırma
 
-## 📝 Yol Haritası
-1. **Veri Entegrasyonu:** Sentetik verilerin Akbank API üzerinden canlı veriyle yer değiştirmesi için gerekli servislerin yazılması.
-2. **Kural Motoru (Rule Engine):** Kullanıcı tanımlı karmaşık birikim kurallarının işlenmesi.
-3. **BES Transfer Simülasyonu:** Agesa API'leri üzerinden birikimlerin hedeflere aktarılması.
+1. **Bağımlılıkları yükleyin**
+```bash
+pip install -r requirements.txt
+```
+
+2. **Sunucuyu başlatın**
+```bash
+uvicorn app.main:app --reload
+```
+
+3. **Dokümantasyonu görün**
+Sunucu çalıştıktan sonra `http://127.0.0.1:8000/docs` adresinden API dökümantasyonuna ulaşabilirsiniz.
+
+---
+**Not**: Bu proje v2.0 sürümüne geçiş aşamasındadır.
