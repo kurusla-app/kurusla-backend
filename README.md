@@ -33,11 +33,10 @@ pip install -r requirements.txt
 
 2. **Veritabanını Hazırlayın**
 ```bash
-# Prisma istemcisini üretin
+# Veritabanını güncelleyin ve başlangıç verilerini yükleyin
 python -m prisma generate
-
-# Veritabanını güncelleyin
 python -m prisma migrate dev
+python seed.py # Popüler markaları yükler
 ```
 
 3. **Sunucuyu başlatın**
