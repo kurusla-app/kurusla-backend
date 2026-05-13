@@ -1,0 +1,52 @@
+// Prisma şeması - Kurusla Backend
+// Python için prisma-client-py kullanılacak
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  balance      Float         @default(0)
+  groupId      Int?
+  group        Group?        @relation(fields: [groupId], references: [id])
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+}
+
+model Group {
+  id           Int      @id @default(autoincrement())
+  name         String
+  inviteCode   String   @unique
+  totalSavings Float    @default(0)
+  users        User[]
+  createdAt    DateTime @default(now())
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  merchant  String
+  category  String
+  timestamp DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  saving    Saving?
+}
+
+model Saving {
+  id            Int         @id @default(autoincrement())
+  amount        Float
+  transactionId Int         @unique
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  createdAt     DateTime    @default(now())
+}
