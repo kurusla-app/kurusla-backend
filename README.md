@@ -46,7 +46,8 @@ python app/main.py
 ```
 
 4. **Dokümantasyon**
-`http://127.0.0.1:8000/docs` adresinden Swagger arayüzüne ulaşabilirsiniz.
+- `http://127.0.0.1:8000/docs` adresinden Swagger arayüzüne ulaşabilirsiniz.
+- Make.com ve Webhook entegrasyonu hakkında detaylı bilgi için: [Make.com Entegrasyon Rehberi](docs/MAKE_COM_INTEGRATION.md)
 
 ---
 **Geliştirici**: Muhammed Beşir Kesen

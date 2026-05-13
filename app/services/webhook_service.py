@@ -22,24 +22,27 @@ async def process_webhook_transaction(data):
     # 3. DB Kaydı (Transaction ve Saving tablolarına tek seferde kayıt)
     # Prisma'nın Nested Writes (İç içe yazma) özelliği sayesinde Transaction oluşurken, Saving de ona bağlanarak oluşur.
     
-    # Eğer yuvarlama sıfırsa (örn 20.00 TL harcandıysa) Saving kaydı atmıyoruz.
-    saving_data = None
+    transaction_data = {
+        "amount": data.amount,
+        "merchant": data.merchant,
+        "category": final_category,
+        "user": {
+            "connect": {"id": data.userId}
+        }
+    }
+    
     if saving_amount > 0:
-        saving_data = {
+        transaction_data["saving"] = {
             "create": {
                 "amount": saving_amount,
-                "userId": data.userId
+                "user": {
+                    "connect": {"id": data.userId}
+                }
             }
         }
 
     new_transaction = await db.transaction.create(
-        data={
-            "amount": data.amount,
-            "merchant": data.merchant,
-            "category": final_category,
-            "userId": data.userId,
-            "saving": saving_data
-        },
+        data=transaction_data,
         include={"saving": True} # Kayıttan sonra Saving sonucunu da bize döndürsün
     )
     
