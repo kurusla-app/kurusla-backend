@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from app.services.savings_service import calculate_percentage_saving, calculate_round_up
+from fastapi import FastAPI
+from app.api.savings import router as savings_router
 
 app = FastAPI(
     title="Kurusla Backend API",
@@ -8,39 +7,13 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# İstek (Request) modellerini tanımlıyoruz
-class SavingRequest(BaseModel):
-    amount: float
-    ratio: float = 10.0  # Varsayılan %10
-    step: float = 10.0   # Varsayılan 10'luk yuvarlama
+# Rotaları dahil ediyoruz (Prefix ekleyerek URL yapısını düzenliyoruz)
+app.include_router(savings_router, prefix="/api/savings", tags=["Savings"])
 
 @app.get("/")
 def read_root():
-    return {"status": "success", "message": "Kurusla Backend API (Python) is running!"}
-
-@app.post("/api/savings/calculate")
-def calculate_savings(data: SavingRequest):
-    """
-    Hem yüzde hem de yuvarlama bazlı birikim tutarlarını hesaplar.
-    """
-    try:
-        percentage_result = calculate_percentage_saving(data.amount, data.ratio)
-        round_up_result = calculate_round_up(data.amount, data.step)
-        
-        return {
-            "amount": data.amount,
-            "percentage_savings": {
-                "ratio": data.ratio,
-                "saving": percentage_result
-            },
-            "round_up_savings": {
-                "step": data.step,
-                "saving": round_up_result
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return {"status": "success", "message": "Kurusla Backend API is running with Layered Architecture!"}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
