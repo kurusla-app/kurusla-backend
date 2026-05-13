@@ -1,24 +1,23 @@
-from app.services.savings_service import calculate_percentage_saving, calculate_round_up
+import pytest
+from app.services.savings_service import calculate_round_up
 
-def run_tests():
-    print("\n--- KURUSLA PYTHON MIKRO BIRIKIM TEST SONUCLARI ---\n")
-    
-    harcama = 49.99
-    oran = 10
-    hedef = 10
-    
-    yuzde = calculate_percentage_saving(harcama, oran)
-    yuvarlama = calculate_round_up(harcama, hedef)
-    
-    print(f"Harcama: {harcama} TL")
-    print(f"Oran: %{oran} | Biriken: {yuzde} TL")
-    print(f"Hedef: {hedef} | Biriken: {yuvarlama} TL")
-    
-    print("\n--- DIGER ORNEKLER ---")
-    print(f"42.30 TL harcama, 10'a yuvarla: {calculate_round_up(42.30, 10)} TL")
-    print(f"150.00 TL harcama, %5 birikim: {calculate_percentage_saving(150, 5)} TL")
-    
-    print("\n" + "-"*46 + "\n")
+def test_calculate_round_up_normal():
+    # Senaryo 1: Standart küsuratlı rakam (12.01 -> 10'luk adıma göre 20'ye yuvarlar, fark 7.99)
+    assert calculate_round_up(12.01, 10.0) == 7.99
 
-if __name__ == "__main__":
-    run_tests()
+def test_calculate_round_up_halfway():
+    # Senaryo 2: Tam ortadaki bir rakam (15.00 -> 20'ye yuvarlar, fark 5.00)
+    assert calculate_round_up(15.00, 10.0) == 5.00
+
+def test_calculate_round_up_exact_multiple():
+    # Senaryo 3: Zaten adımın tam katı olan bir rakam (20.00 -> 20'ye yuvarlar, fark 0.0)
+    assert calculate_round_up(20.00, 10.0) == 0.0
+
+def test_calculate_round_up_zero_or_negative():
+    # Senaryo 4: Sıfır veya negatif harcama (Hata vermemeli, 0 dönmeli)
+    assert calculate_round_up(0, 10.0) == 0.0
+    assert calculate_round_up(-5.50, 10.0) == 0.0
+
+def test_calculate_round_up_large_step():
+    # Senaryo 5: Daha büyük bir yuvarlama adımı (42.30 -> 50'lik adıma göre 50'ye yuvarlar, fark 7.70)
+    assert calculate_round_up(42.30, 50.0) == 7.70
