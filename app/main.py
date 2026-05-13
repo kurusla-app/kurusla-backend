@@ -1,14 +1,27 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.api.savings import router as savings_router
+from app.api.groups import router as groups_router
+from app.core.db import connect_db, disconnect_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Uygulama başlarken DB'ye bağlan
+    await connect_db()
+    yield
+    # Uygulama kapanırken DB bağlantısını kes
+    await disconnect_db()
 
 app = FastAPI(
     title="Kurusla Backend API",
     description="Mikro Birikim ve AI Destekli Tasarruf Platformu",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
-# Rotaları dahil ediyoruz (Prefix ekleyerek URL yapısını düzenliyoruz)
+# Rotaları dahil ediyoruz
 app.include_router(savings_router, prefix="/api/savings", tags=["Savings"])
+app.include_router(groups_router, prefix="/api/groups", tags=["Groups"])
 
 @app.get("/")
 def read_root():

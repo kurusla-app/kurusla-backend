@@ -17,6 +17,7 @@ Sürdürülebilirlik için katmanlı bir mimari benimsenmiştir:
 - **Group**: Sosyal birikim grupları.
 - **Transaction**: Kullanıcının yaptığı harcamalar.
 - **Saving**: Her harcamadan elde edilen mikro-birikimler.
+- **Group Management**: Sosyal birikim grupları ve davet kodu sistemi.
 
 ## 🛠️ Teknoloji Stack'i
 - **Framework**: FastAPI
