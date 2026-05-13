@@ -20,6 +20,7 @@ model User {
   groupId      Int?
   group        Group?        @relation(fields: [groupId], references: [id])
   transactions Transaction[]
+  savings      Saving[]
   createdAt    DateTime      @default(now())
 }
 
@@ -37,10 +38,10 @@ model Transaction {
   amount    Float
   merchant  String
   category  String
-  timestamp DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   saving    Saving?
+  createdAt DateTime @default(now())
 }
 
 model Saving {
@@ -48,5 +49,7 @@ model Saving {
   amount        Float
   transactionId Int         @unique
   transaction   Transaction @relation(fields: [transactionId], references: [id])
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
   createdAt     DateTime    @default(now())
 }

@@ -1,35 +1,28 @@
 # Kurusla - Backend API (Python)
 
-**Kurusla**, kullanıcıların harcamalarını takip ederek otomatik birikim yapmasını sağlayan bir fintech çözümüdür. Bu v2.0 sürümü, **Python** ve **FastAPI** ile geliştirilerek AI süreçlerine tam uyumlu hale getirilmiştir.
+**Kurusla**, kullanıcıların harcamalarını takip ederek otomatik birikim yapmasını sağlayan bir fintech çözümüdür. Bu sürüm, **Python**, **FastAPI** ve **Prisma** ile geliştirilmiştir.
 
 ## 🎯 Proje Özeti
-Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya yüzde bazlı) göre birikim hesaplar ve tasarruf potlarına (BES/Hayal) aktarır.
+Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya yüzde bazlı) göre birikim hesaplar ve veritabanına kaydeder.
 
-## ✨ Özellikler (V2.0)
-- **FastAPI Framework**: Yüksek performanslı ve modern backend.
-- **Smart Rule Engine**: Gelişmiş yüzde ve yuvarlama hesaplamaları.
-- **AI Integration Support**: Python ekosistemi sayesinde yapay zeka entegrasyonu hazır.
-- **Pydantic Validation**: Tüm istekler (requests) sıkı tip kontrolünden geçer.
+## 🏗️ Mimari Yapı (Layered Architecture)
+Sürdürülebilirlik için katmanlı bir mimari benimsenmiştir:
+- **app/api**: API uç noktaları (Routers).
+- **app/services**: İş mantığı ve hesaplama motoru (Business Logic).
+- **app/schemas**: Veri doğrulama modelleri (Pydantic).
+- **app/core**: Yapılandırma ve veritabanı istemcisi.
+
+## 💾 Veritabanı Modelleri (Prisma)
+- **User**: Kullanıcı bilgileri ve bakiye takibi.
+- **Group**: Sosyal birikim grupları.
+- **Transaction**: Kullanıcının yaptığı harcamalar.
+- **Saving**: Her harcamadan elde edilen mikro-birikimler.
 
 ## 🛠️ Teknoloji Stack'i
-- **Language**: Python 3.10+
 - **Framework**: FastAPI
-- **WebServer**: Uvicorn
-- **Validation**: Pydantic
-- **AI/LLM Support**: LangChain, OpenAI/Gemini (Planlanıyor)
-
-## 📁 Proje Yapısı
-```
-kurusla-backend/
-├── app/
-│   ├── main.py              # Uygulama giriş noktası
-│   ├── services/            # İş mantığı servisleri
-│   │   └── savings_service.py # Birikim hesaplama motoru
-├── tests/                   # Python testleri
-│   └── test_savings.py      # Birikim motoru testi
-├── requirements.txt         # Bağımlılıklar
-└── README.md
-```
+- **Database ORM**: Prisma (Python Client)
+- **Database**: PostgreSQL (Neon.tech)
+- **Validation**: Pydantic v2
 
 ## 🚀 Kurulum ve Çalıştırma
 
@@ -38,13 +31,22 @@ kurusla-backend/
 pip install -r requirements.txt
 ```
 
-2. **Sunucuyu başlatın**
+2. **Veritabanını Hazırlayın**
 ```bash
-uvicorn app.main:app --reload
+# Prisma istemcisini üretin
+python -m prisma generate
+
+# Veritabanını güncelleyin
+python -m prisma migrate dev
 ```
 
-3. **Dokümantasyonu görün**
-Sunucu çalıştıktan sonra `http://127.0.0.1:8000/docs` adresinden API dökümantasyonuna ulaşabilirsiniz.
+3. **Sunucuyu başlatın**
+```bash
+python app/main.py
+```
+
+4. **Dokümantasyon**
+`http://127.0.0.1:8000/docs` adresinden Swagger arayüzüne ulaşabilirsiniz.
 
 ---
-**Not**: Bu proje v2.0 sürümüne geçiş aşamasındadır.
+**Geliştirici**: Muhammed Beşir Kesen
