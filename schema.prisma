@@ -21,7 +21,15 @@ model User {
   group        Group?        @relation(fields: [groupId], references: [id])
   transactions Transaction[]
   savings      Saving[]
+  rule         UserRule?
   createdAt    DateTime      @default(now())
+}
+
+model UserRule {
+  id           Int      @id @default(autoincrement())
+  roundUpStep  Float    @default(10.0)
+  userId       Int      @unique
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model Group {

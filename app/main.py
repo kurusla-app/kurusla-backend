@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.api.savings import router as savings_router
 from app.api.groups import router as groups_router
 from app.api.webhook import router as webhook_router
+from app.api.users import router as users_router
 from app.core.db import connect_db, disconnect_db
 
 @asynccontextmanager
@@ -24,6 +25,7 @@ app = FastAPI(
 app.include_router(savings_router, prefix="/api/savings", tags=["Savings"])
 app.include_router(groups_router, prefix="/api/groups", tags=["Groups"])
 app.include_router(webhook_router, prefix="/api/webhook", tags=["Webhook"])
+app.include_router(users_router, prefix="/api/users", tags=["Users"])
 
 @app.get("/")
 def read_root():

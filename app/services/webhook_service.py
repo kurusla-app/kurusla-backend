@@ -16,8 +16,18 @@ async def process_webhook_transaction(data):
     # Eğer marka bizde kayıtlıysa onun kategorisini al, yoksa gelen veriyi/varsayılanı kullan
     final_category = merchant_info.category if merchant_info else data.category
 
-    # 2. Math Engine'i Tetikle (Varsayılan 10 TL'lik yuvarlama)
-    saving_amount = calculate_round_up(data.amount, step=10.0)
+    # Kullanıcının özel yuvarlama kuralını (Rule) veritabanından çek
+    user_rule = await db.userrule.find_unique(
+        where={
+            "userId": data.userId
+        }
+    )
+    
+    # Kullanıcının kuralı yoksa varsayılan olarak 10.0 al
+    round_up_step = user_rule.roundUpStep if user_rule else 10.0
+
+    # 2. Math Engine'i Tetikle (Kullanıcının tercihine göre)
+    saving_amount = calculate_round_up(data.amount, step=round_up_step)
 
     # 3. DB Kaydı (Transaction ve Saving tablolarına tek seferde kayıt)
     # Prisma'nın Nested Writes (İç içe yazma) özelliği sayesinde Transaction oluşurken, Saving de ona bağlanarak oluşur.
