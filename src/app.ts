@@ -10,9 +10,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-import groupRoutes from './api/groups';
 import authRoutes from './api/auth/auth.routes';
 import webhookRoutes from './api/webhooks/webhook.routes';
+import groupRoutes from './api/groups/groups.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
