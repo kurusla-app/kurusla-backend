@@ -1,5 +1,4 @@
 node_modules/
-venv/
+dist/
 .env
-__pycache__/
-*.pyc
+.kurusla_ai_kurallar.md
