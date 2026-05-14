@@ -11,6 +11,7 @@ Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenm
 - **src/app.ts**: Express konfigürasyonları.
 - **src/api/**: API uç noktaları (Controllers/Routers).
 - **src/services/**: İş mantığı ve hesaplama motoru (Business Logic & Math Engine).
+- **src/services/aiService.ts**: Python tabanlı AI Mikroservisi ile (Yusuf'un modülü) iletişim kuran köprü katmanı.
 - **src/middlewares/**: Güvenlik, Auth ve hata yakalama.
 - **src/config/**: Veritabanı istemcisi (Prisma Client).
 
