@@ -12,8 +12,10 @@ app.use(express.json());
 // Routes
 import groupRoutes from './api/groups';
 import authRoutes from './api/auth/auth.routes';
+import webhookRoutes from './api/webhooks/webhook.routes';
 
 app.use('/api/auth', authRoutes);
+app.use('/api/webhooks', webhookRoutes);
 app.use('/api/groups', groupRoutes);
 
 app.get('/healthz', (req, res) => {
