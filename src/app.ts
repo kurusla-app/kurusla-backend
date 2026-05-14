@@ -11,7 +11,9 @@ app.use(express.json());
 
 // Routes
 import groupRoutes from './api/groups';
+import authRoutes from './api/auth/auth.routes';
 
+app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 
 app.get('/healthz', (req, res) => {
