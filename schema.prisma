@@ -2,10 +2,7 @@
 // Python için prisma-client-py kullanılacak
 
 generator client {
-  provider             = "prisma-client-py"
-  interface            = "asyncio"
-  recursive_type_depth = 5
-  binaryTargets        = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {

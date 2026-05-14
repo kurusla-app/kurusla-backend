@@ -1,53 +1,61 @@
-# Kurusla - Backend API (Python)
+# Kurusla - Backend API (TypeScript / Node.js)
 
-**Kurusla**, kullanıcıların harcamalarını takip ederek otomatik birikim yapmasını sağlayan bir fintech çözümüdür. Bu sürüm, **Python**, **FastAPI** ve **Prisma** ile geliştirilmiştir.
+**Kurusla**, kullanıcıların harcamalarını takip ederek otomatik birikim yapmasını sağlayan bir fintech çözümüdür. Bu sürüm, "Hibrit Mükemmellik" mikroservis mimarisine geçiş kapsamında **TypeScript**, **Node.js**, **Express.js** ve **Prisma** ile baştan yazılmıştır.
 
 ## 🎯 Proje Özeti
 Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya yüzde bazlı) göre birikim hesaplar ve veritabanına kaydeder.
 
 ## 🏗️ Mimari Yapı (Layered Architecture)
-Sürdürülebilirlik için katmanlı bir mimari benimsenmiştir:
-- **app/api**: API uç noktaları (Routers).
-- **app/services**: İş mantığı ve hesaplama motoru (Business Logic).
-- **app/schemas**: Veri doğrulama modelleri (Pydantic).
-- **app/core**: Yapılandırma ve veritabanı istemcisi.
+Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenmiştir:
+- **src/server.ts**: Uygulama giriş kapısı (Entry point).
+- **src/app.ts**: Express konfigürasyonları.
+- **src/api/**: API uç noktaları (Controllers/Routers).
+- **src/services/**: İş mantığı ve hesaplama motoru (Business Logic & Math Engine).
+- **src/middlewares/**: Güvenlik, Auth ve hata yakalama.
+- **src/config/**: Veritabanı istemcisi (Prisma Client).
 
 ## 💾 Veritabanı Modelleri (Prisma)
 - **User**: Kullanıcı bilgileri ve bakiye takibi.
 - **Group**: Sosyal birikim grupları.
 - **Transaction**: Kullanıcının yaptığı harcamalar.
 - **Saving**: Her harcamadan elde edilen mikro-birikimler.
-- **Group Management**: Sosyal birikim grupları ve davet kodu sistemi.
+- **MerchantCategory**: Satıcı ve kategori eşleştirmeleri.
 
 ## 🛠️ Teknoloji Stack'i
-- **Framework**: FastAPI
-- **Database ORM**: Prisma (Python Client)
+- **Runtime**: Node.js
+- **Language**: TypeScript
+- **Framework**: Express.js
+- **Database ORM**: Prisma (v5)
 - **Database**: PostgreSQL (Neon.tech)
-- **Validation**: Pydantic v2
 
 ## 🚀 Kurulum ve Çalıştırma
 
 1. **Bağımlılıkları yükleyin**
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
 2. **Veritabanını Hazırlayın**
 ```bash
-# Veritabanını güncelleyin ve başlangıç verilerini yükleyin
-python -m prisma generate
-python -m prisma migrate dev
-python seed.py # Popüler markaları yükler
+# Veritabanı tiplerini TS için oluşturun
+npx prisma generate
+
+# Geliştirme ortamı için veritabanını güncelleyin
+npx prisma migrate dev
 ```
 
 3. **Sunucuyu başlatın**
 ```bash
-python app/main.py
+# Geliştirme modu (Kodu değiştirdikçe otomatik yenilenir)
+npm run dev
+
+# Canlı ortam (Build alarak)
+npm run build
+npm start
 ```
 
-4. **Dokümantasyon**
-- `http://127.0.0.1:8000/docs` adresinden Swagger arayüzüne ulaşabilirsiniz.
-- Make.com ve Webhook entegrasyonu hakkında detaylı bilgi için: [Make.com Entegrasyon Rehberi](docs/MAKE_COM_INTEGRATION.md)
+## 🌍 CI/CD ve Deploy (Render)
+Bu proje GitHub Actions üzerinden otomatik CI/CD sürecine sahiptir. `main` branch'ine yapılan push'lar otomatik derlenerek Render sunucusuna gönderilir.
 
 ---
-**Geliştirici**: Muhammed Beşir Kesen
+**Geliştirici**: Muhammed Beşir Kesen / Taha Buğra Çiçek
