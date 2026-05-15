@@ -32,7 +32,8 @@
     "express": "^5.2.1",
     "firebase-admin": "^13.10.0",
     "jsonwebtoken": "^9.0.3",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -28,9 +28,32 @@ AI Agent, veritabanına doğrudan erişmek yerine backend tarafından sunulan k�
 }
 ```
 
+### 🔗 Action Endpoint (Yeni)
+- **URL:** `/api/ai/execute-action`
+- **Method:** `POST`
+- **Açıklama:** Veritabanında değişiklik yapan veya kritik finansal kararlar içeren işlemler için kullanılır.
+- **Gövde (Body):**
+```json
+{
+  "userId": 1,
+  "actionName": "ACTION_ADI",
+  "parameters": { ... }
+}
+```
+
 ---
 
-## 🛠️ Mevcut Tool'lar
+## 🛠️ Mevcut Aksiyonlar (Actions)
+
+### 1. `UPDATE_STEP`
+Kullanıcının yuvarlama adımını günceller.
+- **Parametreler:** `{ "step": number }` (1-1000 arası)
+- **Güvenlik:** Doğrudan uygulanır.
+
+### 2. `ALLOCATE_FUNDS`
+Kullanıcının birikimlerini fona aktarır.
+- **Parametreler:** `{ "amount": number, "approvalCode"?: string }`
+- **Güvenlik:** 100 TL üzerindeki işlemler için `approvalCode` zorunludur. Kod yoksa `202 PENDING_APPROVAL` döner.
 
 ### 1. `updateUserStep`
 Kullanıcının yuvarlama adımını (round-up step) günceller.
