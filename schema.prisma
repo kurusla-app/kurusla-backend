@@ -25,6 +25,7 @@ model User {
   fcmToken     String?
   badges       UserBadge[]
   ailogs       AILog[]
+  stats        UserStats?
   createdAt    DateTime      @default(now())
 }
 
@@ -82,6 +83,10 @@ model Transaction {
   user      User     @relation(fields: [userId], references: [id])
   saving    Saving?
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([merchant])
 }
 
 enum TransactionStatus {
@@ -101,6 +106,10 @@ model Saving {
   retryCount    Int               @default(0)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @default(now()) @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([status])
 }
 
 model MerchantCategory {
@@ -108,4 +117,13 @@ model MerchantCategory {
   name     String @unique // Örn: Starbucks
   category String         // Örn: Food & Drink
   icon     String?        // Örn: coffee-icon
+}
+
+model UserStats {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
+  totalSavings      Float    @default(0)
+  totalTransactions Int      @default(0)
+  lastUpdate        DateTime @updatedAt
 }

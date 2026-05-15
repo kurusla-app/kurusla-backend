@@ -39,8 +39,11 @@ export async function processNewTransaction(userId: number, amount: number, merc
       allocateFunds(userId, savingAmount, saving.id);
     }
 
-    // 3. AI Servisini Tetikle (Fire-and-forget)
-    // await KULLANMIYORUZ! Çünkü kullanıcıyı veya sistemi AI analizinin bitmesini bekletmek istemiyoruz.
+    // 3. İstatistikleri Güncelle (Özet Tablo Mantığı)
+    const { StatsService } = await import('./stats.service');
+    StatsService.updateUserStats(userId, savingAmount, true);
+
+    // 4. AI Servisini Tetikle (Fire-and-forget)
     analyzeTransaction({
       transactionId: transaction.id,
       amount: transaction.amount,

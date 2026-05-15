@@ -23,6 +23,20 @@ export const AI_TOOLS: Record<string, (userId: number, params: any) => Promise<a
    * Kullanıcının birikim özetini getirir
    */
   getSavingsSummary: async (userId: number) => {
+    // Performans Optimizasyonu: Özet tablodan (UserStats) çek
+    const stats = await prisma.userStats.findUnique({
+      where: { userId }
+    });
+
+    if (stats) {
+      return {
+        totalSavings: stats.totalSavings,
+        savingCount: stats.totalTransactions, // Toplam işlem sayısı
+        lastUpdate: stats.lastUpdate
+      };
+    }
+
+    // Eğer stats tablosu henüz oluşmadıysa (fail-safe) eski yönteme dön
     const savings = await prisma.saving.findMany({
       where: { userId }
     });
