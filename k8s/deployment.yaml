@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kurusla-backend
+  labels:
+    app: kurusla
+spec:
+  replicas: 3 # Yük dengeleme için 3 kopya çalıştır
+  selector:
+    matchLabels:
+      app: kurusla
+  template:
+    metadata:
+      labels:
+        app: kurusla
+    spec:
+      containers:
+      - name: kurusla-api
+        image: gcr.io/kurusla-projesi/backend:latest # Örnek image yolu
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: kurusla-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kurusla-service
+spec:
+  selector:
+    app: kurusla
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
