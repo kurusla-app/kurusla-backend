@@ -34,9 +34,21 @@ export async function processNewTransaction(userId: number, amount: number, merc
         }
       });
 
-      // AgeSA Fon Tahsisini Başlat (Arka planda çalışabilir ama sonucunu bekleyip statü güncelliyoruz)
+      // AgeSA Fon Tahsisini Başlat
       const { allocateFunds } = await import('./ageSaService');
       allocateFunds(userId, savingAmount, saving.id);
+
+      // --- YENİ: Ortak Pot Yönlendirmesi ---
+      const userWithGroup = await prisma.user.findUnique({ 
+        where: { id: userId }, 
+        include: { group: { include: { pots: { where: { isActive: true }, take: 1 } } } } as any
+      }) as any;
+
+      if (userWithGroup?.group?.pots?.[0]) {
+        const { PotService } = await import('./pot.service');
+        await PotService.contributeToPot(userWithGroup.group.pots[0].id, userId, savingAmount);
+        console.log(`[Pot] Birikim ${userWithGroup.group.pots[0].name} potuna yönlendirildi.`);
+      }
     }
 
     // 3. İstatistikleri Güncelle (Özet Tablo Mantığı)
