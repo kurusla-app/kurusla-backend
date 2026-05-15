@@ -2,3 +2,4 @@ node_modules/
 dist/
 .env
 .kurusla_ai_kurallar.md
+.firebase-admin-key.json

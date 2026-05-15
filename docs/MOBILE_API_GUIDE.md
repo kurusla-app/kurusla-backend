@@ -87,7 +87,36 @@ Eğer mobil uygulama üzerinden telefonun bildirimlerine erişip ham metni gönd
 
 ---
 
-### 4. Sistem Durumu
+### 4. Kullanıcı Profil ve Bildirim İşlemleri (User)
+
+#### 📲 FCM Token Kaydetme
+Mobil uygulama açıldığında veya token yenilendiğinde bu endpoint'e güncel token gönderilmelidir.
+- **URL:** `/api/user/fcm-token`
+- **Method:** `POST`
+- **Body:**
+```json
+{
+  "userId": 1,
+  "fcmToken": "firebase_cihaz_token_buraya"
+}
+```
+
+#### 🔔 Test Bildirimi Gönder
+Sistemin bildirim gönderip göndermediğini test etmek için kullanılır.
+- **URL:** `/api/user/test-notification`
+- **Method:** `POST`
+- **Body:**
+```json
+{
+  "userId": 1,
+  "title": "Merhaba Kurusla!",
+  "body": "Bu bir test bildirimidir."
+}
+```
+
+---
+
+### 5. Sistem Durumu
 
 #### 🏥 Sağlık Kontrolü
 - **URL:** `/healthz`
