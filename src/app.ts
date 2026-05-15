@@ -9,6 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// API Gateway & Rate Limiting (Kötü niyetli isteklere karşı kapıdaki koruma)
+import { apiRateLimiter } from './middlewares/rateLimiter';
+app.use('/api', apiRateLimiter);
+
 // Routes
 import authRoutes from './api/auth/auth.routes';
 import webhookRoutes from './api/webhooks/webhook.routes';
