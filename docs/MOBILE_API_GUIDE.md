@@ -145,12 +145,19 @@ AI modelinin backend üzerinde güvenli fonksiyonları çağırması için kulla
 
 ---
 
-### 6. Sistem Durumu
+### 6. Finansal Entegrasyonlar (AgeSA)
 
-#### 🏥 Sağlık Kontrolü
-- **URL:** `/healthz`
-- **Method:** `GET`
-- **Yanıt:** Sunucunun aktif olup olmadığını kontrol eder.
+#### 🏦 Birikim Aktarımı
+Kullanıcının biriken tutarını AgeSA hesabına aktarmak için kullanılır.
+- **URL:** `/api/agesa/transfer`
+- **Method:** `POST`
+- **Body:**
+```json
+{
+  "userId": 1,
+  "amount": 150.75
+}
+```
 
 ---
 

@@ -52,6 +52,15 @@ export const AI_TOOLS: Record<string, (userId: number, params: any) => Promise<a
       description: b.description,
       isEarned: userBadgeIds.includes(b.id)
     }));
+  },
+
+  /**
+   * Kullanıcının biriktirdiği tutarı AgeSA emeklilik fonuna aktarır
+   */
+  allocateAgesaFunds: async (userId: number, params: { amount: number }) => {
+    const { amount } = params;
+    const { allocateFunds } = await import('./ageSaService');
+    return await allocateFunds(userId, amount);
   }
 };
 

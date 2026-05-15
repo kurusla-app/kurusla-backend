@@ -47,6 +47,24 @@ Kullanıcının hangi rozetleri kazandığını ve hangi rozetlerin henüz kazan
 - **Parametreler:** `{}`
 - **Dönen Veri:** `[ { "name": "Kuruşçu", "description": "...", "isEarned": true }, ... ]`
 
+### 4. `allocateAgesaFunds`
+Kullanıcının biriktirdiği kuruşları AgeSA emeklilik fonuna aktarır.
+- **Parametreler:** `{ "amount": number }`
+- **Dönen Veri:** `{ "success": true, "transactionId": "AGE-..." }`
+
+---
+
+## 🧪 Nasıl Test Edilir? (Terminal)
+
+AI Tool'larını test etmek için şu PowerShell komutunu kullanabilirsiniz:
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/ai/execute-tool" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"userId": 1, "toolName": "allocateAgesaFunds", "parameters": {"amount": 5.00}}'
+```
+
 ---
 
 ## 📝 Denetim (Logging)
