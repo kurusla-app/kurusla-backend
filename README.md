@@ -7,6 +7,7 @@ Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya y
 - **Otomatik Birikim:** Harcamaları analiz eder ve belirlenen kurallar dahilinde tasarruf oluşturur.
 - **Dirençli Ödeme Altyapısı (Resilient Payment Gateway):** Başarısız AgeSA transferlerini otomatik olarak 5 kez yeniden dener.
 - **AI Agent Sandbox:** Güvenli tool-calling mekanizması ile AI üzerinden işlem yapma imkanı.
+- **Güvenlik ve KVKK:** AES-256-CBC algoritması ile veritabanı seviyesinde (at-rest) hassas veri şifreleme.
 
 ## 🏗️ Mimari Yapı (Layered Architecture)
 Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenmiştir:
