@@ -67,4 +67,3 @@ npm start
 Bu proje GitHub Actions üzerinden otomatik CI/CD sürecine sahiptir. `main` branch'ine yapılan push'lar otomatik derlenerek Render sunucusuna gönderilir.
 
 ---
-**Geliştirici**: Muhammed Beşir Kesen / Taha Buğra Çiçek
