@@ -25,13 +25,18 @@ export async function processNewTransaction(userId: number, amount: number, merc
     
     // Eğer yuvarlanacak bir küsurat varsa Saving tablosuna kaydet
     if (savingAmount > 0) {
-      await prisma.saving.create({
+      const saving = await prisma.saving.create({
         data: {
           userId,
           transactionId: transaction.id,
-          amount: savingAmount
+          amount: savingAmount,
+          status: 'PENDING'
         }
       });
+
+      // AgeSA Fon Tahsisini Başlat (Arka planda çalışabilir ama sonucunu bekleyip statü güncelliyoruz)
+      const { allocateFunds } = await import('./ageSaService');
+      allocateFunds(userId, savingAmount, saving.id);
     }
 
     // 3. AI Servisini Tetikle (Fire-and-forget)

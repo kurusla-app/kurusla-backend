@@ -4,6 +4,9 @@
 
 ## 🎯 Proje Özeti
 Bu API, harcama bildirimlerini alır, kullanıcı kurallarına (yuvarlama veya yüzde bazlı) göre birikim hesaplar ve veritabanına kaydeder.
+- **Otomatik Birikim:** Harcamaları analiz eder ve belirlenen kurallar dahilinde tasarruf oluşturur.
+- **Dirençli Ödeme Altyapısı (Resilient Payment Gateway):** Başarısız AgeSA transferlerini otomatik olarak 5 kez yeniden dener.
+- **AI Agent Sandbox:** Güvenli tool-calling mekanizması ile AI üzerinden işlem yapma imkanı.
 
 ## 🏗️ Mimari Yapı (Layered Architecture)
 Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenmiştir:

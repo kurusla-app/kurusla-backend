@@ -21,82 +21,69 @@ const ageSaClient = axios.create({
  * @param userId Kullanıcı ID
  * @param amount Gönderilecek tutar (TL)
  */
-export async function allocateFunds(userId: number, amount: number) {
+export async function allocateFunds(userId: number, amount: number, savingId?: number) {
   const logPrefix = `[AgeSA Service][${new Date().toISOString()}]`;
   
   console.log(`${logPrefix} Kullanıcı ${userId} için ${amount} TL fon tahsisi başlatıldı.`);
 
-  // 0. Tutar Kontrolü
-  if (amount <= 0) {
-    return {
-      success: false,
-      message: 'Gönderilecek tutar 0\'dan büyük olmalıdır.',
-      status: 'INVALID_AMOUNT'
-    };
-  }
-
   try {
-    // 1. Simülasyon Kontrolü (Gerçek URL yoksa sahte başarı dön)
+    // 1. Simülasyon Kontrolü
     let responseData;
-    
     if (process.env.AGESA_API_URL?.includes('api-sim')) {
-      console.log(`${logPrefix} Simülasyon modu aktif. Gerçek ağ isteği atlanıyor.`);
       responseData = {
         id: `AGE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
         status: 'COMPLETED',
-        message: 'Simulated success',
-        processedAt: new Date().toISOString()
+        message: 'Simulated success'
       };
     } else {
-      // Gerçek AgeSA API'ye İstek Atılması
       const response = await ageSaClient.post('/allocate', {
         customerReference: userId.toString(),
         amount: amount,
         currency: 'TRY',
-        type: 'CONTRIBUTION_PAYMENT',
-        description: 'Kurusla Uygulaması Otomatik Birikim Transferi'
+        type: 'CONTRIBUTION_PAYMENT'
       });
       responseData = response.data;
     }
 
-    // 2. İşlem Başarılı - Veritabanına Logla
+    // 2. İşlem Başarılı - DB Güncelle (Eğer savingId varsa)
+    if (savingId) {
+      await prisma.saving.update({
+        where: { id: savingId },
+        data: { status: 'SUCCESS' }
+      });
+    }
+
     await prisma.aILog.create({
       data: {
-        userId: userId,
+        userId,
         toolName: 'AgeSA_FundAllocation',
-        parameters: { amount, status: 'SUCCESS', mode: 'SIMULATED' },
+        parameters: { amount, status: 'SUCCESS', savingId },
         response: responseData as any
       }
     });
 
-    console.log(`${logPrefix} İşlem Başarılı:`, responseData);
-
-    return {
-      success: true,
-      transactionId: responseData.id,
-      data: responseData
-    };
+    return { success: true, transactionId: responseData.id, data: responseData };
 
   } catch (error: any) {
-    // 3. Hata Yönetimi
     const errorDetail = error.response?.data || error.message;
-    console.error(`${logPrefix} İşlem Başarısız:`, errorDetail);
+    
+    // 3. Hata Durumu - DB Güncelle (FAILED olarak işaretle)
+    if (savingId) {
+      await prisma.saving.update({
+        where: { id: savingId },
+        data: { status: 'FAILED' }
+      });
+    }
 
-    // Hatalı işlemi de logla (Audit Trail)
     await prisma.aILog.create({
       data: {
-        userId: userId,
+        userId,
         toolName: 'AgeSA_FundAllocation',
-        parameters: { amount, status: 'FAILED' },
+        parameters: { amount, status: 'FAILED', savingId },
         response: { error: errorDetail }
       }
     });
 
-    return {
-      success: false,
-      message: 'AgeSA sistemine bağlanırken bir hata oluştu.',
-      error: errorDetail,
-      status: 'FAILED'
-    };
+    return { success: false, message: 'AgeSA hatası', error: errorDetail, status: 'FAILED' };
   }
 }

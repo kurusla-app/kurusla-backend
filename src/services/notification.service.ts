@@ -79,3 +79,26 @@ export async function sendNotificationToGroup(userIds: number[], title: string, 
     console.error('Grup bildirimi gönderilirken hata oluştu:', error);
   }
 }
+
+/**
+ * Teknik ekibe veya sistem yöneticisine kritik hata bildirimi gönderir
+ */
+export async function sendCriticalAlert(title: string, body: string) {
+  const adminToken = process.env.ADMIN_FCM_TOKEN;
+  
+  console.error(`🚨 [KRİTİK UYARI] ${title}: ${body}`);
+
+  if (!adminToken) {
+    console.warn('⚠️ Admin FCM Token tanımlanmadığı için push bildirimi gönderilemedi.');
+    return;
+  }
+
+  try {
+    await admin.messaging().send({
+      notification: { title, body },
+      token: adminToken
+    });
+  } catch (error) {
+    console.error('Kritik uyarı gönderilirken hata oluştu:', error);
+  }
+}
