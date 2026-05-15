@@ -10,12 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id           Int           @id @default(autoincrement())
   email        String        @unique
   password     String
   firstName    String?
   lastName     String?
+  role         UserRole      @default(USER)
   balance      Float         @default(0)
   groupId      Int?
   group        Group?        @relation(fields: [groupId], references: [id])
@@ -26,6 +32,7 @@ model User {
   badges       UserBadge[]
   ailogs       AILog[]
   stats        UserStats?
+  potRequests  PotRequest[]
   createdAt    DateTime      @default(now())
 }
 
@@ -71,7 +78,50 @@ model Group {
   inviteCode   String   @unique
   totalSavings Float    @default(0)
   users        User[]
+  pots         Pot[]
   createdAt    DateTime @default(now())
+}
+
+model Pot {
+  id           Int              @id @default(autoincrement())
+  name         String
+  targetAmount Float
+  currentAmount Float           @default(0)
+  image        String?
+  groupId      Int
+  group        Group            @relation(fields: [groupId], references: [id])
+  participants PotParticipant[]
+  requests     PotRequest[]
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+}
+
+model PotParticipant {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  potId     Int
+  pot       Pot      @relation(fields: [potId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, potId])
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PotRequest {
+  id        Int           @id @default(autoincrement())
+  potId     Int
+  pot       Pot           @relation(fields: [potId], references: [id])
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  amount    Float
+  type      String        // "CONTRIBUTION" veya "WITHDRAWAL"
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
 }
 
 model Transaction {
