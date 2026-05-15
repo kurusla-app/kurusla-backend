@@ -1,18 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
-import { createClient } from 'redis';
-
-/**
- * Redis İstemcisi Yapılandırması
- */
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-// Redis bağlantısını başlat (Hata durumunda logla ama uygulamayı çökertme)
-redisClient.connect().catch(err => {
-  console.warn('⚠️ Redis bağlantısı kurulamadı, Rate Limiter bellek modunda çalışacak:', err.message);
-});
+import redisClient from '../config/redis';
 
 /**
  * Kamu API'leri için Hız Sınırlayıcı (Rate Limiter)

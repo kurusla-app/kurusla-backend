@@ -21,6 +21,7 @@ import userRoutes from './api/user/user.routes';
 import aiRoutes from './api/ai/ai.routes';
 import adminRoutes from './api/admin/admin.routes';
 import potRoutes from './api/pots/pots.routes';
+import statsRoutes from './api/stats/stats.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
@@ -29,6 +30,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/pots', potRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok', message: 'Kurusla Backend TS is running!' });
