@@ -122,7 +122,30 @@ Gece yarısı çalışacak olan rozet kontrollerini manuel olarak tetikler.
 
 ---
 
-### 5. Sistem Durumu
+### 5. AI Agent İşlemleri (Sandbox)
+
+#### 🤖 Tool Çalıştır (Execute Tool)
+AI modelinin backend üzerinde güvenli fonksiyonları çağırması için kullanılır.
+- **URL:** `/api/ai/execute-tool`
+- **Method:** `POST`
+- **Body:**
+```json
+{
+  "userId": 1,
+  "toolName": "updateUserStep",
+  "parameters": {
+    "step": 50
+  }
+}
+```
+- **Mevcut Tool'lar:**
+    - `updateUserStep`: Kullanıcının yuvarlama adımını günceller.
+    - `getSavingsSummary`: Birikim özetini getirir.
+    - `listBadges`: Rozet durumlarını listeler.
+
+---
+
+### 6. Sistem Durumu
 
 #### 🏥 Sağlık Kontrolü
 - **URL:** `/healthz`

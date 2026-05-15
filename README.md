@@ -12,14 +12,18 @@ Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenm
 - **src/api/[feature]/**: Her özelliğin kendi Route ve Controller dosyaları. (Sektör standardı).
 - **src/services/**: İş mantığı ve hesaplama motoru (Business Logic & Math Engine).
 - **src/services/aiService.ts**: Python tabanlı AI Mikroservisi ile (Yusuf'un modülü) iletişim kuran köprü katmanı.
+- **src/services/aiTools.ts**: Agentic AI için güvenli Sandbox araçları.
+- **src/jobs/**: Arka plan görevleri ve zamanlanmış kontroller (Cron Jobs).
 - **src/middlewares/**: Güvenlik, Auth ve hata yakalama.
 - **src/config/**: Veritabanı istemcisi (Prisma Client).
 
 ## 💾 Veritabanı Modelleri (Prisma)
-- **User**: Kullanıcı bilgileri ve bakiye takibi.
+- **User**: Kullanıcı bilgileri, bakiye ve bildirim token (FCM) takibi.
 - **Group**: Sosyal birikim grupları.
 - **Transaction**: Kullanıcının yaptığı harcamalar.
 - **Saving**: Her harcamadan elde edilen mikro-birikimler.
+- **Badge & UserBadge**: Oyunlaştırma sistemi (Rozetler).
+- **AILog**: AI Agent tarafından yapılan işlemlerin denetim kaydı.
 - **MerchantCategory**: Satıcı ve kategori eşleştirmeleri.
 
 ## 🛠️ Teknoloji Stack'i

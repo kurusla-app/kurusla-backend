@@ -22,7 +22,18 @@ model User {
   rule         UserRule?
   fcmToken     String?
   badges       UserBadge[]
+  ailogs       AILog[]
   createdAt    DateTime      @default(now())
+}
+
+model AILog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  toolName   String
+  parameters Json
+  response   Json?
+  createdAt  DateTime @default(now())
 }
 
 model Badge {

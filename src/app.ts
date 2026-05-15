@@ -14,11 +14,13 @@ import authRoutes from './api/auth/auth.routes';
 import webhookRoutes from './api/webhooks/webhook.routes';
 import groupRoutes from './api/groups/groups.routes';
 import userRoutes from './api/user/user.routes';
+import aiRoutes from './api/ai/ai.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok', message: 'Kurusla Backend TS is running!' });
