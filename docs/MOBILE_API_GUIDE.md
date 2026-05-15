@@ -114,6 +114,12 @@ Sistemin bildirim gönderip göndermediğini test etmek için kullanılır.
 }
 ```
 
+#### 🏆 Rozet Kontrollerini Tetikle (Dev/Test)
+Gece yarısı çalışacak olan rozet kontrollerini manuel olarak tetikler.
+- **URL:** `/api/user/trigger-badges`
+- **Method:** `POST`
+- **Yanıt:** `200 OK`
+
 ---
 
 ### 5. Sistem Durumu

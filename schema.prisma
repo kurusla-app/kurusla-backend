@@ -21,7 +21,27 @@ model User {
   savings      Saving[]
   rule         UserRule?
   fcmToken     String?
+  badges       UserBadge[]
   createdAt    DateTime      @default(now())
+}
+
+model Badge {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String
+  icon        String?
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  badgeId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt  DateTime @default(now())
+
+  @@unique([userId, badgeId])
 }
 
 model UserRule {
