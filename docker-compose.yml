@@ -7,6 +7,9 @@ services:
       - .env
     environment:
       REDIS_URL: redis://redis:6379
+      # AgeSA yoksa simülasyon (k6 / yerel birikim FAILED spam önlenir)
+      AGESA_API_URL: https://api-sim.agesa.com.tr/v1
+      AGESA_SIMULATE: "true"
     depends_on:
       - redis
     restart: unless-stopped
