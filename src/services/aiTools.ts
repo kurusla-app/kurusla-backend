@@ -1,4 +1,5 @@
 import prisma from '../config/db';
+import { isAllowedRoundUpValue, numberToRoundUpStep } from '../utils/roundUpStep';
 
 /**
  * AI tarafından çağrılabilecek güvenli araçların (tools) tanımları
@@ -10,12 +11,16 @@ export const AI_TOOLS: Record<string, (userId: number, params: any) => Promise<a
    */
   updateUserStep: async (userId: number, params: { step: number }) => {
     const { step } = params;
-    if (!step || step <= 0) throw new Error('Geçersiz step değeri.');
+    if (!isAllowedRoundUpValue(step)) {
+      throw new Error('Yuvarlama limiti yalnızca 5, 10 veya 50 olabilir.');
+    }
+
+    const roundUpStep = numberToRoundUpStep(step);
 
     return await prisma.userRule.upsert({
       where: { userId },
-      update: { roundUpStep: step },
-      create: { userId, roundUpStep: step }
+      update: { roundUpStep },
+      create: { userId, roundUpStep },
     });
   },
 

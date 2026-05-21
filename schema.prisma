@@ -15,6 +15,13 @@ enum UserRole {
   ADMIN
 }
 
+/// Kullanıcının tercih ettiği yuvarlama limiti (5, 10 veya 50 TL)
+enum RoundUpStep {
+  STEP_5
+  STEP_10
+  STEP_50
+}
+
 model User {
   id           Int           @id @default(autoincrement())
   email        String        @unique
@@ -65,11 +72,12 @@ model UserBadge {
   @@unique([userId, badgeId])
 }
 
+/// Kullanıcı yuvarlama kuralı (görev dokümanındaki "Rule" tablosu)
 model UserRule {
-  id           Int      @id @default(autoincrement())
-  roundUpStep  Float    @default(10.0)
-  userId       Int      @unique
-  user         User     @relation(fields: [userId], references: [id])
+  id           Int          @id @default(autoincrement())
+  roundUpStep  RoundUpStep  @default(STEP_10)
+  userId       Int          @unique
+  user         User         @relation(fields: [userId], references: [id])
 }
 
 model Group {

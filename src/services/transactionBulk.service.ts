@@ -2,6 +2,7 @@ import prisma from '../config/db';
 import { calculateRoundUp } from './mathEngine';
 import { analyzeTransaction } from './aiService';
 import { ParsedStatementTransaction } from './statementParser.service';
+import { roundUpStepToNumber } from '../utils/roundUpStep';
 
 export interface BulkTransactionRecord {
   id: number;
@@ -49,7 +50,7 @@ export async function processBulkTransactionSideEffects(
   transactions: BulkTransactionRecord[]
 ): Promise<{ totalSavings: number; savingsCreated: number }> {
   const rule = await prisma.userRule.findUnique({ where: { userId } });
-  const step = rule?.roundUpStep ?? 10;
+  const step = rule ? roundUpStepToNumber(rule.roundUpStep) : 10;
 
   let totalSavings = 0;
   let savingsCreated = 0;

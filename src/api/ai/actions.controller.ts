@@ -5,7 +5,7 @@ import * as aiTools from '../../services/aiTools';
 
 // --- Validasyon Şemaları ---
 const UpdateStepSchema = z.object({
-  step: z.number().min(1).max(1000)
+  step: z.union([z.literal(5), z.literal(10), z.literal(50)]),
 });
 
 const AllocateFundsSchema = z.object({

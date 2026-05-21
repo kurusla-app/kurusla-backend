@@ -1,6 +1,7 @@
 import prisma from '../config/db';
 import { calculateRoundUp } from './mathEngine';
 import { analyzeTransaction } from './aiService';
+import { roundUpStepToNumber } from '../utils/roundUpStep';
 
 /**
  * Gelen harcamayı işleyen, birikim hesaplayan ve AI servisini tetikleyen ana akış.
@@ -19,7 +20,7 @@ export async function processNewTransaction(userId: number, amount: number, merc
 
     // 2. Yuvarlama Kuralını getir ve Birikim (Saving) hesapla
     const rule = await prisma.userRule.findUnique({ where: { userId } });
-    const step = rule ? rule.roundUpStep : 10; // Varsayılan 10
+    const step = rule ? roundUpStepToNumber(rule.roundUpStep) : 10;
     
     const savingAmount = calculateRoundUp(amount, step);
     
