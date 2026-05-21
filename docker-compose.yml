@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # Backend API Servisi
   api:
     build: .
     ports:
@@ -9,17 +6,13 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://neondb_owner:npg_yuYd1DPLWAN7@ep-bold-butterfly-al7aw7ed-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require
-      - REDIS_URL=redis://redis:6379
+      REDIS_URL: redis://redis:6379
     depends_on:
       - redis
+    restart: unless-stopped
 
-  # Redis (Caching & Message Broker için)
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-
-# Veri kalıcılığı için volume tanımları (İhtiyaç durumunda)
-volumes:
-  postgres_data:
+    restart: unless-stopped

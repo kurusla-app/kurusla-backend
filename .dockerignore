@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.env.*
+.git
+.github
+scratch
+load-tests/results
+*.md
+!README.md
+terminals
+.cursor
+agent-transcripts
+assets

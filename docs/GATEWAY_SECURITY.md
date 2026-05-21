@@ -17,11 +17,12 @@ Tüm `/api/*` uç noktaları için aşağıdaki sınırlamalar geçerlidir:
 
 ---
 
-## 💾 Dağıtık Yapı (Redis)
+## 💾 Rate limit store
 
-Rate limiting verileri **Redis** üzerinde saklanır. Bu sayede:
-1. API birden fazla sunucuda (Kubernetes üzerinde) çalışsa bile hız sınırı merkezi olarak takip edilir.
-2. Sunucu yeniden başlasa bile kullanıcıların limitleri kaybolmaz.
+Rate limiting şu an **bellek içi** store kullanır (`src/middlewares/rateLimiter.ts`).  
+**Redis** yalnızca istatistik cache için kullanılır (`stats.service.ts`).
+
+Çoklu instance için ileride `rate-limit-redis` entegrasyonu planlanabilir.
 
 ---
 
