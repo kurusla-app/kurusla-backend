@@ -8,7 +8,7 @@ export interface ParsedStatementTransaction {
   rawLine: string;
 }
 
-function normalizeForMatch(text: string): string {
+export function normalizeForMatch(text: string): string {
   return text
     .replace(/\u0130/g, 'I') // Türkçe İ
     .replace(/ı/g, 'i')
@@ -94,11 +94,32 @@ function cleanMerchant(raw: string): string {
     .slice(0, 120);
 }
 
-function inferCategory(merchant: string): string {
+export function inferCategoryFromMerchant(merchant: string): string {
   for (const rule of CATEGORY_RULES) {
     if (rule.pattern.test(merchant)) return rule.category;
   }
   return 'Ekstre';
+}
+
+export function isSkippedOrIncomeLine(text: string): boolean {
+  const norm = normalizeForMatch(text);
+  return SKIP_KEYWORDS.test(norm) || INCOME_KEYWORDS.test(norm);
+}
+
+export function mergeParsedTransactions(
+  items: ParsedStatementTransaction[]
+): ParsedStatementTransaction[] {
+  const seen = new Set<string>();
+  const results: ParsedStatementTransaction[] = [];
+
+  for (const item of items) {
+    const key = transactionKey(item);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push(item);
+  }
+
+  return results;
 }
 
 function transactionKey(tx: ParsedStatementTransaction): string {
@@ -130,7 +151,7 @@ export function parseStatementText(text: string): ParsedStatementTransaction[] {
 
       parsed = {
         ...mapped,
-        category: inferCategory(mapped.merchant),
+        category: inferCategoryFromMerchant(mapped.merchant),
         rawLine,
       };
       break;

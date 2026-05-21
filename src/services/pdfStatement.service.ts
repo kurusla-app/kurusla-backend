@@ -4,6 +4,7 @@ export interface PdfExtractionResult {
   text: string;
   pageCount: number;
   pages: Array<{ pageNumber: number; text: string }>;
+  tables: string[][][];
 }
 
 const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -29,6 +30,16 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<PdfExtractionR
 
   try {
     const result = await parser.getText();
+    let tables: string[][][] = [];
+
+    try {
+      const tableResult = await parser.getTable();
+      if (tableResult.mergedTables?.length) {
+        tables = tableResult.mergedTables as string[][][];
+      }
+    } catch (tableError) {
+      console.warn('[PDF] Tablo çıkarımı atlandı, metin tabanlı parse kullanılacak.');
+    }
 
     return {
       text: result.text.trim(),
@@ -37,6 +48,7 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<PdfExtractionR
         pageNumber: page.num,
         text: page.text.trim(),
       })),
+      tables,
     };
   } finally {
     await parser.destroy();

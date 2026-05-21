@@ -49,11 +49,16 @@ Paket projede kuruludur (`pdf-parse` v2).
 
 Yanıt: `data[]` — her satır için `merchant`, `amount`, `category`, `date`, `rawLine`.
 
-## Tam içe aktarma (import)
+## Tam içe aktarma (import) — toplu DB kaydı
 
 **POST** `/api/statements/import`
 
-PDF veya metin gönderilir; her harcama `processNewTransaction` ile kaydedilir (yuvarlama, AgeSA, pot, AI).
+PDF veya metin gönderilir. Akış:
+
+1. PDF → metin + `getTable()` ile tablo satırları
+2. Satır + tablo + tab ayrılmış metin parse edilir
+3. `Transaction` tablosuna **toplu** (`$transaction` batch) kayıt
+4. Birikim / AgeSA / pot / AI yan etkileri toplu işlenir
 
 ```json
 {
@@ -71,7 +76,7 @@ veya
 }
 ```
 
-Yanıt özeti: `importedCount`, `skippedCount`, `failedCount`, `transactions[]`.
+Yanıt özeti: `importedCount`, `skippedCount`, `failedCount`, `bulkSaved`, `savingsCreated`, `totalSavings`, `transactions[]`.
 
 ## Make.com entegrasyonu
 

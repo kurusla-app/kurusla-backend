@@ -3,7 +3,7 @@ import {
   extractTextFromPdf,
   pdfBufferFromBase64,
 } from '../../services/pdfStatement.service';
-import { parseStatementText } from '../../services/statementParser.service';
+import { parseStatementFromSources } from '../../services/statementTableParser.service';
 import { importStatementForUser } from '../../services/statementImport.service';
 
 /**
@@ -38,6 +38,7 @@ export async function parseStatementPdf(req: Request, res: Response): Promise<an
         pageCount: result.pageCount,
         charCount: result.text.length,
         pages: result.pages,
+        tableCount: result.tables.length,
       },
     });
   } catch (error: any) {
@@ -62,7 +63,7 @@ export async function parseStatementTransactions(req: Request, res: Response): P
       return res.status(400).json({ error: 'text alanı zorunludur.' });
     }
 
-    const transactions = parseStatementText(text);
+    const transactions = parseStatementFromSources(text);
 
     if (transactions.length === 0) {
       return res.status(422).json({

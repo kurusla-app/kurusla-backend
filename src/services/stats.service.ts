@@ -8,19 +8,26 @@ export class StatsService {
   /**
    * Kullanıcının toplam birikimini ve işlem sayısını günceller.
    */
-  static async updateUserStats(userId: number, addSavingAmount: number = 0, addTransaction: boolean = false) {
+  static async updateUserStats(
+    userId: number,
+    addSavingAmount: number = 0,
+    addTransaction: boolean | number = false
+  ) {
+    const txIncrement =
+      typeof addTransaction === 'number' ? addTransaction : addTransaction ? 1 : 0;
+
     try {
       await prisma.userStats.upsert({
         where: { userId },
         update: {
           totalSavings: { increment: addSavingAmount },
-          totalTransactions: { increment: addTransaction ? 1 : 0 },
+          totalTransactions: { increment: txIncrement },
           lastUpdate: new Date()
         },
         create: {
           userId,
           totalSavings: addSavingAmount,
-          totalTransactions: addTransaction ? 1 : 0
+          totalTransactions: txIncrement
         }
       });
     } catch (error) {
