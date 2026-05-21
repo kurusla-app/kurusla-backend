@@ -19,6 +19,8 @@ Authorization: Bearer <token>
 
 `userId` artık body/query'de **gönderilmez** — token'daki kullanıcı kullanılır.
 
+AI sohbet: `POST /api/chat` — ayrıntı: [CHAT.md](./CHAT.md)
+
 ## Açık endpoint'ler
 
 - `POST /api/auth/register`, `POST /api/auth/login`

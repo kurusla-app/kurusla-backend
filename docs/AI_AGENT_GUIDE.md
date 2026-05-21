@@ -12,6 +12,18 @@ AI Agent, veritabanına doğrudan erişmek yerine backend tarafından sunulan k�
 
 ---
 
+## 💬 Mobil sohbet (Chat)
+
+Kullanıcıların doğal dilde soru sorması için ayrı endpoint:
+
+- **URL:** `POST /api/chat`
+- **Auth:** `Authorization: Bearer <JWT>` (zorunlu)
+- **Detay:** [CHAT.md](./CHAT.md)
+
+Tool/action endpoint'leri agent içindir; mobil uygulama doğrudan `/api/chat` kullanır.
+
+---
+
 ## 🚀 API Kullanımı
 
 ### 🔗 Endpoint
