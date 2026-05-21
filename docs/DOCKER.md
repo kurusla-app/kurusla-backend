@@ -10,6 +10,18 @@ JWT_SECRET_KEY=...
 INTERNAL_SERVICE_KEY=...
 REDIS_URL=redis://redis:6379
 PORT=3000
+# AgeSA (yerel/docker — simülasyon önerilir)
+AGESA_API_URL=https://api-sim.agesa.com.tr/v1
+AGESA_SIMULATE=true
+```
+
+`AGESA_API_URL` boşsa veya `AGESA_SIMULATE=true` ise gerçek HTTP çağrısı yapılmaz; k6 sonrası birikimler `SUCCESS` olur.
+
+Eski yüzlerce `FAILED` kayıt retry job logunu dolduruyorsa (tek seferlik temizlik):
+
+```sql
+-- Dikkat: sadece test verisi için
+UPDATE "Saving" SET status = 'SUCCESS', "retryCount" = 0 WHERE status = 'FAILED';
 ```
 
 ```bash

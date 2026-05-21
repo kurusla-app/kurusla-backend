@@ -1,12 +1,20 @@
 import axios from 'axios';
 import prisma from '../config/db';
 
+/** Docker/yerel: URL yoksa veya api-sim / AGESA_SIMULATE ise gerçek HTTP çağrısı yapılmaz */
+export function isAgeSaSimulationMode(): boolean {
+  if (process.env.AGESA_SIMULATE === 'true') return true;
+  const url = process.env.AGESA_API_URL?.trim();
+  if (!url) return true;
+  return url.includes('api-sim');
+}
+
 /**
  * AgeSA API İstemcisi
  * Finansal işlemler için özel timeout ve header yapılandırması
  */
 const ageSaClient = axios.create({
-  baseURL: process.env.AGESA_API_URL,
+  baseURL: process.env.AGESA_API_URL || 'https://api-sim.agesa.local/v1',
   headers: {
     'Content-Type': 'application/json',
     'X-Api-Key': process.env.AGESA_API_KEY,
@@ -27,13 +35,12 @@ export async function allocateFunds(userId: number, amount: number, savingId?: n
   console.log(`${logPrefix} Kullanıcı ${userId} için ${amount} TL fon tahsisi başlatıldı.`);
 
   try {
-    // 1. Simülasyon Kontrolü
     let responseData;
-    if (process.env.AGESA_API_URL?.includes('api-sim')) {
+    if (isAgeSaSimulationMode()) {
       responseData = {
-        id: `AGE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        id: `AGE-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
         status: 'COMPLETED',
-        message: 'Simulated success'
+        message: 'Simulated success',
       };
     } else {
       const response = await ageSaClient.post('/allocate', {
