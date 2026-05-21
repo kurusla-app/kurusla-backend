@@ -3,3 +3,5 @@ dist/
 .env
 .kurusla_ai_kurallar.md
 .firebase-admin-key.json
+load-tests/results/*.json
+load-tests/results/*.html
