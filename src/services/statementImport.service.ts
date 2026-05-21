@@ -8,6 +8,7 @@ import {
   processBulkTransactionSideEffects,
   toBulkInsertPayload,
 } from './transactionBulk.service';
+import { resolveTransactionCategory } from './categoryResolver.service';
 
 const MAX_IMPORT_COUNT = 200;
 
@@ -115,7 +116,7 @@ async function bulkImportParsedTransactions(
       continue;
     }
 
-    item.category = await resolveCategory(item.merchant, item.category);
+    item.category = await resolveTransactionCategory(item.merchant);
     toImport.push(item);
   }
 
@@ -175,12 +176,3 @@ async function findDuplicateTransaction(userId: number, item: ParsedStatementTra
   return candidates.find((tx) => tx.merchant.toLowerCase() === merchantKey);
 }
 
-async function resolveCategory(merchant: string, fallback: string): Promise<string> {
-  const known = await prisma.merchantCategory.findFirst({
-    where: {
-      name: { contains: merchant.slice(0, 20), mode: 'insensitive' },
-    },
-  });
-
-  return known?.category ?? fallback;
-}

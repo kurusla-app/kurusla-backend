@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import prisma from '../config/db';
 import * as badgeService from '../services/badge.service';
+import { TransactionCategories } from '../constants/categories';
 
 /**
  * Rozet Kontrol Job'ı
@@ -32,7 +33,7 @@ export async function checkIradeSahibi() {
     const foodTransactions = await prisma.transaction.findFirst({
       where: {
         userId: user.id,
-        category: 'Food & Drink', // MOBILE_API_GUIDE'daki kategori isimlendirmesine uygun
+        category: TransactionCategories.FOOD_DRINK,
         createdAt: {
           gte: threeDaysAgo
         }

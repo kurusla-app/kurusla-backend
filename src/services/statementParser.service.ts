@@ -1,4 +1,7 @@
 import { parseTurkishAmount } from '../utils/amountParser';
+import { inferCategoryFromMerchant } from './categoryResolver.service';
+
+export { inferCategoryFromMerchant } from './categoryResolver.service';
 
 export interface ParsedStatementTransaction {
   merchant: string;
@@ -74,17 +77,6 @@ const LINE_PATTERNS: Array<{
   },
 ];
 
-const CATEGORY_RULES: Array<{ pattern: RegExp; category: string }> = [
-  { pattern: /starbucks|kahve|coffee|migros\s*cafe|gloria|espresso/i, category: 'Food & Drink' },
-  { pattern: /migros|bim|a101|şok|carrefour|market|grocery/i, category: 'Grocery' },
-  { pattern: /spotify|netflix|youtube|abonelik|digital|steam|playstation|xbox/i, category: 'Digital Subscriptions' },
-  { pattern: /uber|taksi|metro|otobüs|shell|opet|bp|akaryakıt|parking/i, category: 'Transportation' },
-  { pattern: /zara|h&m|lcw|defacto|moda|giyim/i, category: 'Clothing & Fashion' },
-  { pattern: /eczane|sağlık|hospital|medikal/i, category: 'Health & Personal Care' },
-  { pattern: /steam|epic|oyun|game/i, category: 'Gaming & Entertainment' },
-  { pattern: /udemy|coursera|kitap|kurs|eğitim/i, category: 'Education' },
-];
-
 function cleanMerchant(raw: string): string {
   return raw
     .replace(/\s+/g, ' ')
@@ -94,12 +86,6 @@ function cleanMerchant(raw: string): string {
     .slice(0, 120);
 }
 
-export function inferCategoryFromMerchant(merchant: string): string {
-  for (const rule of CATEGORY_RULES) {
-    if (rule.pattern.test(merchant)) return rule.category;
-  }
-  return 'Ekstre';
-}
 
 export function isSkippedOrIncomeLine(text: string): boolean {
   const norm = normalizeForMatch(text);

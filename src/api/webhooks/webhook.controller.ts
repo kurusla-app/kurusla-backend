@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { parseBankMessage } from '../../services/regexService';
 import { processNewTransaction } from '../../services/transactionService';
+import { resolveTransactionCategory } from '../../services/categoryResolver.service';
 import { getWebhookUserId, handleAuthError } from '../../utils/authUser';
 
 /**
@@ -23,18 +24,19 @@ export async function handleSmsWebhook(req: Request, res: Response): Promise<any
       return res.status(422).json({ error: 'Metin formatı tanınamadı.' });
     }
 
-    // 2. İşlemi Transaction Service üzerinden kaydet ve diğer çarkları tetikle
+    const category = await resolveTransactionCategory(parsedData.merchant);
+
     const transaction = await processNewTransaction(
       userId,
       parsedData.amount,
       parsedData.merchant,
-      'Banka Bildirimi' // Varsayılan kategori
+      category
     );
 
     return res.status(201).json({
       message: 'İşlem başarıyla kaydedildi.',
       data: transaction,
-      parsed: parsedData
+      parsed: { ...parsedData, category },
     });
 
   } catch (error: unknown) {
