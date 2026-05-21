@@ -29,6 +29,56 @@ Sürdürülebilirlik için profesyonel bir Node.js/TS klasör mimarisi benimsenm
 - **Badge & UserBadge**: Oyunlaştırma sistemi (Rozetler).
 - **AILog**: AI Agent tarafından yapılan işlemlerin denetim kaydı.
 - **MerchantCategory**: Satıcı ve kategori eşleştirmeleri.
+- **UserRule**: Yuvarlama adımı (5 / 10 / 50 TL).
+- **UserStats**: Özet birikim ve işlem sayısı.
+- **Referral**: Davet Et Kazan.
+- **Pot / PotParticipant**: Kuruşla Paylaş ortak birikim.
+- **AIInsight**: AI model içgörüleri (kullanıcı profili).
+
+## ✨ Son eklenen özellikler
+
+| Özellik | Endpoint / not |
+|---------|----------------|
+| JWT kimlik doğrulama | `Authorization: Bearer` — `docs/AUTH.md` |
+| Davet Et Kazan | `GET/POST /api/referral/*` |
+| Kuruşla Paylaş (Pot) | `POST/GET /api/pots/*` |
+| AI sohbet (mobil) | `POST /api/chat` — `docs/CHAT.md` |
+| AI içgörüleri (DB) | `GET /api/insights`, `POST /api/insights` (internal) — `docs/INSIGHTS.md` |
+| **Dashboard / profil** | **`GET /api/user/me`** — bakiye, toplam birikim, yuvarlama kuralı |
+| Webhook kategori | İşlem kategorisi `categoryResolver` |
+| AgeSA simülasyon | `AGESA_SIMULATE`, retry job batch limiti |
+| Docker | `Dockerfile`, `docker-compose.yml` — `docs/DOCKER.md` |
+| Unit test + CI | `npm test`, GitHub Actions `deploy.yml` |
+
+## 📱 Önemli API uçları
+
+Tüm korumalı isteklerde `userId` body'de **gönderilmez**; JWT'deki kullanıcı kullanılır.
+
+```http
+GET /api/user/me
+Authorization: Bearer <token>
+```
+
+Örnek yanıt:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "firstName": null,
+    "lastName": null,
+    "balance": 1.0,
+    "totalSavings": 125.5,
+    "totalTransactions": 12,
+    "roundUpStep": 10,
+    "roundUpStepLabel": "STEP_10"
+  }
+}
+```
+
+Diğer dokümantasyon: `docs/AUTH.md`, `docs/CHAT.md`, `docs/INSIGHTS.md`, `docs/AI_AGENT_GUIDE.md`, `docs/REFERRAL_SYSTEM.md`.
 
 ## 🛠️ Teknoloji Stack'i
 - **Runtime**: Node.js
@@ -63,7 +113,17 @@ npm run build
 npm start
 ```
 
+## 🧪 Test
+
+```bash
+npm test          # Vitest unit testleri
+npm run build     # TypeScript derleme (CI ile aynı)
+```
+
 ## 🌍 CI/CD ve Deploy (Render)
-Bu proje GitHub Actions üzerinden otomatik CI/CD sürecine sahiptir. `main` branch'ine yapılan push'lar otomatik derlenerek Render sunucusuna gönderilir.
+
+`main` branch push → GitHub Actions: `npm test` + `npm run build` → Render deploy hook.
+
+Gerekli ortam değişkenleri (örnek): `DATABASE_URL`, `JWT_SECRET_KEY`, `INTERNAL_SERVICE_KEY`, `ENCRYPTION_KEY` (32 karakter), `REDIS_URL`, `AGESA_*`, `AI_SERVICE_URL`.
 
 ---

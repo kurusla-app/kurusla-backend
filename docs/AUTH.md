@@ -23,6 +23,8 @@ AI sohbet: `POST /api/chat` — ayrıntı: [CHAT.md](./CHAT.md)
 
 AI içgörüleri: `GET /api/insights`, kayıt `POST /api/insights` (internal key) — [INSIGHTS.md](./INSIGHTS.md)
 
+Dashboard profil: `GET /api/user/me` (bakiye, toplam birikim, yuvarlama adımı)
+
 ## Açık endpoint'ler
 
 - `POST /api/auth/register`, `POST /api/auth/login`

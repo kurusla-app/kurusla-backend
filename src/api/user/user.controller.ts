@@ -5,6 +5,23 @@ import { checkIradeSahibi, checkGrupLideri, checkKuruscu } from '../../jobs/badg
 import { getAuthenticatedUserId, handleAuthError } from '../../utils/authUser';
 
 /**
+ * Mobil dashboard — bakiye, toplam birikim, yuvarlama kuralı
+ * GET /api/user/me
+ */
+export async function getMe(req: Request, res: Response): Promise<any> {
+  try {
+    const userId = getAuthenticatedUserId(req);
+    const data = await userService.getUserDashboard(userId);
+    return res.status(200).json({ success: true, data });
+  } catch (error: unknown) {
+    if (handleAuthError(res, error)) return;
+    const message = error instanceof Error ? error.message : 'Sunucu hatası';
+    const status = message.includes('bulunamadı') ? 404 : 500;
+    return res.status(status).json({ error: message });
+  }
+}
+
+/**
  * FCM Token güncelleme kontrolcüsü
  */
 export async function updateFcmToken(req: Request, res: Response): Promise<any> {
