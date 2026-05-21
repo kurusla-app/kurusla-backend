@@ -1,0 +1,163 @@
+import { parseTurkishAmount } from '../utils/amountParser';
+
+export interface ParsedStatementTransaction {
+  merchant: string;
+  amount: number;
+  date?: string;
+  category: string;
+  rawLine: string;
+}
+
+function normalizeForMatch(text: string): string {
+  return text
+    .replace(/\u0130/g, 'I') // Türkçe İ
+    .replace(/ı/g, 'i')
+    .toLowerCase()
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c');
+}
+
+const SKIP_KEYWORDS =
+  /toplam|bakiye|devir|ekstre|sayfa|hesap kesim|kart limit|asgari odeme|son odeme|borc bakiye|alacak bakiye|onceki donem|donem toplam|limit kullanim|puan bilgi|vergi dairesi|musteri no|kart no|xxxx/;
+
+const INCOME_KEYWORDS =
+  /odeme alin|havale gel|maas|iade gel|faiz gelir|nakit giris|tahsilat/;
+
+const AMOUNT_CAPTURE = '([-+]?(?:\\d{1,3}(?:\\.\\d{3})+|\\d+)[,\\.]\\d{2})';
+
+const LINE_PATTERNS: Array<{
+  regex: RegExp;
+  map: (m: RegExpMatchArray) => Omit<ParsedStatementTransaction, 'category' | 'rawLine'> | null;
+}> = [
+  {
+    // 15.03.2026 STARBUCKS COFFEE 145,50 TL
+    regex: new RegExp(
+      `^(\\d{2}[./-]\\d{2}[./-]\\d{2,4})\\s+(.+?)\\s+${AMOUNT_CAPTURE}\\s*(?:TL)?\\s*$`,
+      'i'
+    ),
+    map: (m) => ({
+      date: m[1],
+      merchant: cleanMerchant(m[2]),
+      amount: parseTurkishAmount(m[3])!,
+    }),
+  },
+  {
+    // STARBUCKS COFFEE 15.03.2026 145,50
+    regex: new RegExp(
+      `^(.+?)\\s+(\\d{2}[./-]\\d{2}[./-]\\d{2,4})\\s+${AMOUNT_CAPTURE}\\s*(?:TL)?\\s*$`,
+      'i'
+    ),
+    map: (m) => ({
+      date: m[2],
+      merchant: cleanMerchant(m[1]),
+      amount: parseTurkishAmount(m[3])!,
+    }),
+  },
+  {
+    // STARBUCKS COFFEE - 145,50 TL
+    regex: new RegExp(`^(.+?)\\s+${AMOUNT_CAPTURE}\\s*TL\\s*$`, 'i'),
+    map: (m) => ({
+      merchant: cleanMerchant(m[1]),
+      amount: parseTurkishAmount(m[2])!,
+    }),
+  },
+  {
+    // Harcama: Starbucks Tutar: 15,50 TL (ekstre satır varyantı)
+    regex: /^(?:harcama|işlem|alıveriş)[:\s]+(.+?)\s+tutar[:\s]+([\d.,]+)\s*TL/i,
+    map: (m) => ({
+      merchant: cleanMerchant(m[1]),
+      amount: parseTurkishAmount(m[2])!,
+    }),
+  },
+];
+
+const CATEGORY_RULES: Array<{ pattern: RegExp; category: string }> = [
+  { pattern: /starbucks|kahve|coffee|migros\s*cafe|gloria|espresso/i, category: 'Food & Drink' },
+  { pattern: /migros|bim|a101|şok|carrefour|market|grocery/i, category: 'Grocery' },
+  { pattern: /spotify|netflix|youtube|abonelik|digital|steam|playstation|xbox/i, category: 'Digital Subscriptions' },
+  { pattern: /uber|taksi|metro|otobüs|shell|opet|bp|akaryakıt|parking/i, category: 'Transportation' },
+  { pattern: /zara|h&m|lcw|defacto|moda|giyim/i, category: 'Clothing & Fashion' },
+  { pattern: /eczane|sağlık|hospital|medikal/i, category: 'Health & Personal Care' },
+  { pattern: /steam|epic|oyun|game/i, category: 'Gaming & Entertainment' },
+  { pattern: /udemy|coursera|kitap|kurs|eğitim/i, category: 'Education' },
+];
+
+function cleanMerchant(raw: string): string {
+  return raw
+    .replace(/\s+/g, ' ')
+    .replace(/^(POS|VPOS|İNTERNET|MAIL\s*ORDER)\s*/i, '')
+    .replace(/\s+(A\.Ş\.|LTD\.?|ŞTİ\.?)\s*.*$/i, '')
+    .trim()
+    .slice(0, 120);
+}
+
+function inferCategory(merchant: string): string {
+  for (const rule of CATEGORY_RULES) {
+    if (rule.pattern.test(merchant)) return rule.category;
+  }
+  return 'Ekstre';
+}
+
+function transactionKey(tx: ParsedStatementTransaction): string {
+  return `${tx.date ?? ''}|${tx.merchant.toLowerCase()}|${tx.amount}`;
+}
+
+/**
+ * Ekstre ham metninden harcama satırlarını çıkarır.
+ */
+export function parseStatementText(text: string): ParsedStatementTransaction[] {
+  const lines = normalizeStatementLines(text);
+  const results: ParsedStatementTransaction[] = [];
+  const seen = new Set<string>();
+
+  for (const rawLine of lines) {
+    const normalizedLine = normalizeForMatch(rawLine);
+    if (SKIP_KEYWORDS.test(normalizedLine) || INCOME_KEYWORDS.test(normalizedLine)) {
+      continue;
+    }
+
+    let parsed: ParsedStatementTransaction | null = null;
+
+    for (const pattern of LINE_PATTERNS) {
+      const match = rawLine.match(pattern.regex);
+      if (!match) continue;
+
+      const mapped = pattern.map(match);
+      if (!mapped || !mapped.amount || mapped.amount < 0.01) continue;
+
+      parsed = {
+        ...mapped,
+        category: inferCategory(mapped.merchant),
+        rawLine,
+      };
+      break;
+    }
+
+    if (!parsed || !parsed.merchant || parsed.merchant.length < 2) continue;
+
+    const merchantNorm = normalizeForMatch(parsed.merchant);
+    if (SKIP_KEYWORDS.test(merchantNorm) || INCOME_KEYWORDS.test(merchantNorm)) {
+      continue;
+    }
+
+    const key = transactionKey(parsed);
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    results.push(parsed);
+  }
+
+  return results;
+}
+
+function normalizeStatementLines(text: string): string[] {
+  return text
+    .replace(/--\s*\d+\s+of\s+\d+\s*--/gi, '\n')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter((line) => line.length >= 8);
+}

@@ -1,8 +1,6 @@
-/**
- * Banka bildirimlerini (SMS/Push) analiz eden Regex Servisi.
- */
+import { parseTurkishAmount } from '../utils/amountParser';
 
-interface ParsedTransaction {
+export interface ParsedTransaction {
   merchant: string;
   amount: number;
 }
@@ -34,10 +32,9 @@ export function parseBankMessage(text: string): ParsedTransaction | null {
     const match = text.match(p.regex);
     if (match) {
       let merchant = match[p.merchantIdx].trim();
-      let amountStr = match[p.amountIdx].replace(',', '.'); // Virgülü noktaya çevir
-      let amount = parseFloat(amountStr);
+      const amount = parseTurkishAmount(match[p.amountIdx]);
 
-      if (!isNaN(amount)) {
+      if (amount) {
         // Gereksiz kelimeleri temizle (Banka ismi vb. başta kalmışsa)
         merchant = merchant.replace(/.*?(?:kartınızla|BBVA|A\.Ş\.|ile|Bankası)/gi, '').trim();
         

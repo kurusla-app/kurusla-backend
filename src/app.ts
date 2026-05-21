@@ -9,7 +9,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Ekstre PDF (base64) için daha yüksek limit
+app.use(express.json({ limit: '15mb' }));
 
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -27,6 +28,7 @@ import aiRoutes from './api/ai/ai.routes';
 import adminRoutes from './api/admin/admin.routes';
 import potRoutes from './api/pots/pots.routes';
 import statsRoutes from './api/stats/stats.routes';
+import statementsRoutes from './api/statements/statements.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
@@ -36,6 +38,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/pots', potRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/statements', statementsRoutes);
 
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok', message: 'Kurusla Backend TS is running!' });
