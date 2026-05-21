@@ -15,8 +15,12 @@ app.listen(PORT, async () => {
     console.warn('⚠️ Redis yok — istatistik cache devre dışı, API çalışmaya devam eder.');
   }
 
-  await seedBadges();
-  
+  try {
+    await seedBadges();
+  } catch (err) {
+    console.error('⚠️ Rozet seed başarısız (DB/Prisma):', err);
+  }
+
   // Cron jobları başlat
   initBadgeJobs();
   initRetryJob();
