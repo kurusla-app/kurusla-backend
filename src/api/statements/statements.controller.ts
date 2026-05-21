@@ -5,6 +5,7 @@ import {
 } from '../../services/pdfStatement.service';
 import { parseStatementFromSources } from '../../services/statementTableParser.service';
 import { importStatementForUser } from '../../services/statementImport.service';
+import { getAuthenticatedUserId, handleAuthError } from '../../utils/authUser';
 
 /**
  * Aylık ekstre PDF'ini ham metne dönüştürür.
@@ -86,11 +87,8 @@ export async function parseStatementTransactions(req: Request, res: Response): P
  */
 export async function importStatement(req: Request, res: Response): Promise<any> {
   try {
-    const { userId, text, pdfBase64 } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId zorunludur.' });
-    }
+    const userId = getAuthenticatedUserId(req);
+    const { text, pdfBase64 } = req.body;
 
     if (!text && !pdfBase64) {
       return res.status(400).json({
@@ -98,21 +96,23 @@ export async function importStatement(req: Request, res: Response): Promise<any>
       });
     }
 
-    const result = await importStatementForUser(Number(userId), { text, pdfBase64 });
+    const result = await importStatementForUser(userId, { text, pdfBase64 });
 
     return res.status(200).json({
       success: true,
       message: `${result.importedCount} işlem içe aktarıldı.`,
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (handleAuthError(res, error)) return;
+    const message = error instanceof Error ? error.message : 'İşlem başarısız';
     const status =
-      error.message?.includes('bulunamadı') ||
-      error.message?.includes('zorunlu') ||
-      error.message?.includes('en fazla')
+      message.includes('bulunamadı') ||
+      message.includes('zorunlu') ||
+      message.includes('en fazla')
         ? 400
         : 422;
 
-    return res.status(status).json({ error: error.message });
+    return res.status(status).json({ error: message });
   }
 }

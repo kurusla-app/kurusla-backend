@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { handleSmsWebhook } from './webhook.controller';
+import { requireInternalOrAuth } from '../../middlewares/auth';
 
 const router = Router();
 
-// POST /api/webhooks/sms
-router.post('/sms', handleSmsWebhook);
+router.post('/sms', requireInternalOrAuth, handleSmsWebhook);
 
 export default router;

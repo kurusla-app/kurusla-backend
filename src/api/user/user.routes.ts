@@ -1,16 +1,13 @@
 import { Router } from 'express';
 import { updateFcmToken, sendTestNotification, triggerBadgeCheck } from './user.controller';
-import { requireAuth } from '../../middlewares/auth';
+import { requireAuth, requireAdmin } from '../../middlewares/auth';
 
 const router = Router();
 
-// FCM Token Güncelleme
+router.use(requireAuth);
+
 router.post('/fcm-token', updateFcmToken);
-
-// Test Bildirimi Gönder
 router.post('/test-notification', sendTestNotification);
-
-// Rozet Kontrollerini Manuel Tetikle
-router.post('/trigger-badges', triggerBadgeCheck);
+router.post('/trigger-badges', requireAdmin, triggerBadgeCheck);
 
 export default router;

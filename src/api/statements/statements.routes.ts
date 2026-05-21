@@ -4,8 +4,11 @@ import {
   parseStatementTransactions,
   importStatement,
 } from './statements.controller';
+import { requireAuth } from '../../middlewares/auth';
 
 const router = Router();
+
+router.use(requireAuth);
 
 /**
  * @swagger

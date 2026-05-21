@@ -73,9 +73,9 @@ export async function loginUser(email: string, passwordRaw: string) {
   // 3. JWT Üret
   const secret = process.env.JWT_SECRET_KEY || 'default_gizli_anahtar';
   const token = jwt.sign(
-    { id: user.id, email: user.email }, 
-    secret, 
-    { expiresIn: '1d' } // 1 gün ömürlü token
+    { id: user.id, email: user.email, role: user.role },
+    secret,
+    { expiresIn: '1d' }
   );
 
   // 4. Şifreyi çıkart ve token ile birlikte dön

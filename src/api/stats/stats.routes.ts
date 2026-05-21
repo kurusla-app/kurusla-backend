@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { StatsController } from './stats.controller';
+import { requireAuth } from '../../middlewares/auth';
 
 const router = Router();
+
+router.use(requireAuth);
 
 /**
  * @swagger

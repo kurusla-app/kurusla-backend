@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { StatsService } from '../../services/stats.service';
+import { getAuthenticatedUserId, handleAuthError } from '../../utils/authUser';
 
 export class StatsController {
   /**
@@ -8,9 +9,7 @@ export class StatsController {
    */
   static async getSavingsStats(req: Request, res: Response) {
     try {
-      // Not: Normalde userId auth middleware'den (req.user.id) gelir. 
-      // Test aşamasında query'den alıyoruz.
-      const userId = Number(req.query.userId) || 1;
+      const userId = getAuthenticatedUserId(req);
       const period = (req.query.period as 'week' | 'month') || 'week';
 
       if (!['week', 'month'].includes(period)) {
@@ -24,8 +23,10 @@ export class StatsController {
         period,
         data: stats
       });
-    } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      if (handleAuthError(res, error)) return;
+      const message = error instanceof Error ? error.message : 'Sunucu hatası';
+      return res.status(500).json({ error: message });
     }
   }
 }

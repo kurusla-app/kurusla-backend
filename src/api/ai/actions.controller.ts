@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../../config/db';
 import * as aiTools from '../../services/aiTools';
+import { getAuthenticatedUserId, handleAuthError } from '../../utils/authUser';
 
 // --- Validasyon Şemaları ---
 const UpdateStepSchema = z.object({
@@ -20,10 +21,11 @@ const CRITICAL_LIMIT = 100; // 100 TL üzeri onay gerektirir
  */
 export async function executeAction(req: Request, res: Response): Promise<any> {
   try {
-    const { userId, actionName, parameters } = req.body;
+    const userId = getAuthenticatedUserId(req);
+    const { actionName, parameters } = req.body;
 
-    if (!userId || !actionName) {
-      return res.status(400).json({ error: 'userId ve actionName zorunludur.' });
+    if (!actionName) {
+      return res.status(400).json({ error: 'actionName zorunludur.' });
     }
 
     let result;
@@ -33,7 +35,7 @@ export async function executeAction(req: Request, res: Response): Promise<any> {
         // 1. Validasyon
         const stepData = UpdateStepSchema.parse(parameters);
         // 2. İşlem (Onay gerektirmez)
-        result = await aiTools.AI_TOOLS.updateUserStep(Number(userId), { step: stepData.step });
+        result = await aiTools.AI_TOOLS.updateUserStep(userId, { step: stepData.step });
         break;
 
       case 'ALLOCATE_FUNDS':
@@ -54,7 +56,7 @@ export async function executeAction(req: Request, res: Response): Promise<any> {
         }
 
         // 3. İşlem Yürütme
-        result = await aiTools.AI_TOOLS.allocateAgesaFunds(Number(userId), { amount: fundData.amount });
+        result = await aiTools.AI_TOOLS.allocateAgesaFunds(userId, { amount: fundData.amount });
         break;
 
       default:
@@ -70,19 +72,21 @@ export async function executeAction(req: Request, res: Response): Promise<any> {
       message: 'İşlem başarıyla tamamlandı.'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (handleAuthError(res, error)) return;
     console.error('AI Action Hatası:', error);
-    
-    // Hatayı logla
-    const { userId, actionName, parameters } = req.body;
+
+    const userId = req.user?.id;
+    const { actionName, parameters } = req.body;
     if (userId && actionName) {
-      await logAIAction(userId, actionName, parameters, { error: error.message });
+      const errMsg = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      await logAIAction(userId, actionName, parameters, { error: errMsg });
     }
 
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Parametre hatası', details: error.issues });
     }
-    
+
     return res.status(500).json({ error: 'İşlem sırasında bir hata oluştu.' });
   }
 }

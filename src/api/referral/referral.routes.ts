@@ -5,6 +5,7 @@ import {
   getStats,
   listInvited,
 } from './referral.controller';
+import { requireAuth } from '../../middlewares/auth';
 
 const router = Router();
 
@@ -15,16 +16,11 @@ const router = Router();
  *     summary: Kullanıcının benzersiz davet linkini getirir/oluşturur
  *     tags: [Referral]
  */
-router.get('/link', getMyReferralLink);
-
-/**
- * @swagger
- * /api/referral/validate/{code}:
- *   get:
- *     summary: Davet kodunun geçerliliğini kontrol eder
- *     tags: [Referral]
- */
 router.get('/validate/:code', validateCode);
+
+router.use(requireAuth);
+
+router.get('/link', getMyReferralLink);
 
 router.get('/stats', getStats);
 router.get('/invited', listInvited);

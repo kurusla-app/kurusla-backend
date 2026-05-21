@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { PotController } from './pots.controller';
+import { requireAuth } from '../../middlewares/auth';
 
 const router = Router();
+
+router.use(requireAuth);
 
 router.post('/', PotController.create);
 router.get('/group/:groupId', PotController.listByGroup);
