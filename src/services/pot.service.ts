@@ -1,59 +1,110 @@
 import prisma from '../config/db';
-import { StatsService } from './stats.service';
+import { PotRequestType } from '@prisma/client';
 import { sendNotificationToUser } from './notification.service';
 
 /**
- * Ortak Birikim (Pot) Yönetimi Servisi
+ * Kuruşla Paylaş — ortak birikim (Pot) yönetimi
  */
 export class PotService {
-  
-  /**
-   * Yeni bir pot oluşturur
-   */
-  static async createPot(groupId: number, name: string, targetAmount: number) {
-    return await (prisma as any).pot.create({
+  static async createPot(
+    groupId: number,
+    name: string,
+    targetAmount: number,
+    createdById?: number,
+    description?: string
+  ) {
+    const group = await prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) throw new Error('Grup bulunamadı.');
+
+    const pot = await prisma.pot.create({
       data: {
         groupId,
         name,
+        description,
         targetAmount,
-        currentAmount: 0
-      }
+        currentAmount: 0,
+        createdById,
+      },
     });
+
+    if (createdById) {
+      await this.joinPot(pot.id, createdById);
+    }
+
+    return pot;
   }
 
   /**
-   * Pota para ekler (Harcama birikimi üzerinden)
+   * Kullanıcıyı pota katılımcı olarak ekler
    */
-  static async contributeToPot(potId: number, userId: number, amount: number) {
-    // 1. Pota ekle
-    const pot = await (prisma as any).pot.update({
+  static async joinPot(potId: number, userId: number) {
+    const pot = await prisma.pot.findUnique({
       where: { id: potId },
-      data: {
-        currentAmount: { increment: amount }
-      },
-      include: { group: { include: { users: true } } }
+      include: { group: true },
     });
 
-    // 2. İşlemi kaydet (Onay gerektirmeyen küçük birikimler için APPROVED)
-    await (prisma as any).potRequest.create({
+    if (!pot || !pot.isActive) {
+      throw new Error('Pot bulunamadı veya aktif değil.');
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error('Kullanıcı bulunamadı.');
+
+    if (user.groupId !== pot.groupId) {
+      throw new Error('Bu pota katılmak için önce gruba dahil olmalısınız.');
+    }
+
+    return prisma.potParticipant.upsert({
+      where: { userId_potId: { userId, potId } },
+      update: {},
+      create: { userId, potId },
+      include: {
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
+        pot: true,
+      },
+    });
+  }
+
+  static async contributeToPot(potId: number, userId: number, amount: number) {
+    await this.joinPot(potId, userId);
+
+    const pot = await prisma.pot.update({
+      where: { id: potId },
+      data: { currentAmount: { increment: amount } },
+      include: { group: { include: { users: true } } },
+    });
+
+    await prisma.potParticipant.update({
+      where: { userId_potId: { userId, potId } },
+      data: { totalContributed: { increment: amount } },
+    });
+
+    await prisma.potRequest.create({
       data: {
         potId,
         userId,
         amount,
-        type: 'CONTRIBUTION',
-        status: 'APPROVED'
-      }
+        type: PotRequestType.CONTRIBUTION,
+        status: 'APPROVED',
+      },
     });
 
-    // 3. Bildirim Gönder (Aile üyelerine)
+    await prisma.group.update({
+      where: { id: pot.groupId },
+      data: { totalSavings: { increment: amount } },
+    });
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const notificationBody = `${(user as any)?.firstName || 'Biri'}, ${pot.name} potuna ${amount.toFixed(2)} TL ekledi! 💰`;
-    
-    // Gruptaki her kullanıcıya bildir
-    if (pot.group && pot.group.users) {
+    const notificationBody = `${user?.firstName || 'Biri'}, ${pot.name} potuna ${amount.toFixed(2)} TL ekledi!`;
+
+    if (pot.group?.users) {
       for (const groupUser of pot.group.users) {
         if (groupUser.fcmToken) {
-          await sendNotificationToUser(groupUser.id, 'Ortak Birikim Güncellendi!', notificationBody);
+          await sendNotificationToUser(
+            groupUser.id,
+            'Kuruşla Paylaş — Birikim Güncellendi',
+            notificationBody
+          );
         }
       }
     }
@@ -61,38 +112,62 @@ export class PotService {
     return pot;
   }
 
-  /**
-   * Para çekme talebi oluşturur (Onay gerektirir)
-   */
   static async requestWithdrawal(potId: number, userId: number, amount: number) {
-    return await (prisma as any).potRequest.create({
+    await this.joinPot(potId, userId);
+
+    return prisma.potRequest.create({
       data: {
         potId,
         userId,
         amount,
-        type: 'WITHDRAWAL',
-        status: 'PENDING'
-      }
+        type: PotRequestType.WITHDRAWAL,
+        status: 'PENDING',
+      },
     });
   }
 
-  /**
-   * Talebi onayla
-   */
   static async approveRequest(requestId: number) {
-    const request = await (prisma as any).potRequest.findUnique({ where: { id: requestId } });
+    const request = await prisma.potRequest.findUnique({ where: { id: requestId } });
     if (!request) throw new Error('Talep bulunamadı.');
 
-    if (request.type === 'WITHDRAWAL') {
-      await (prisma as any).pot.update({
+    if (request.type === PotRequestType.WITHDRAWAL) {
+      await prisma.pot.update({
         where: { id: request.potId },
-        data: { currentAmount: { decrement: request.amount } }
+        data: { currentAmount: { decrement: request.amount } },
       });
     }
 
-    return await (prisma as any).potRequest.update({
+    return prisma.potRequest.update({
       where: { id: requestId },
-      data: { status: 'APPROVED' }
+      data: { status: 'APPROVED' },
+    });
+  }
+
+  static async listPotParticipants(potId: number) {
+    return prisma.potParticipant.findMany({
+      where: { potId },
+      include: {
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
+      },
+      orderBy: { totalContributed: 'desc' },
+    });
+  }
+
+  static async listGroupPots(groupId: number) {
+    return prisma.pot.findMany({
+      where: { groupId, isActive: true },
+      include: {
+        participants: {
+          include: {
+            user: { select: { id: true, email: true, firstName: true, lastName: true } },
+          },
+        },
+        requests: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          include: { user: { select: { id: true, email: true, firstName: true } } },
+        },
+      },
     });
   }
 }

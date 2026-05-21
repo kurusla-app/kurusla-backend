@@ -39,8 +39,10 @@ model User {
   badges       UserBadge[]
   ailogs       AILog[]
   stats        UserStats?
-  potRequests  PotRequest[]
-  createdAt    DateTime      @default(now())
+  potRequests      PotRequest[]
+  potParticipants  PotParticipant[]
+  createdPots      Pot[]            @relation("PotCreator")
+  createdAt        DateTime         @default(now())
 }
 
 model AILog {
@@ -80,6 +82,7 @@ model UserRule {
   user         User         @relation(fields: [userId], references: [id])
 }
 
+/// Kuruşla Paylaş — ortak birikim grubu
 model Group {
   id           Int      @id @default(autoincrement())
   name         String
@@ -90,28 +93,39 @@ model Group {
   createdAt    DateTime @default(now())
 }
 
+/// Grup içindeki ortak birikim hedefi (Pot / kumbara)
 model Pot {
-  id           Int              @id @default(autoincrement())
-  name         String
-  targetAmount Float
-  currentAmount Float           @default(0)
-  image        String?
-  groupId      Int
-  group        Group            @relation(fields: [groupId], references: [id])
-  participants PotParticipant[]
-  requests     PotRequest[]
-  isActive     Boolean          @default(true)
-  createdAt    DateTime         @default(now())
+  id            Int              @id @default(autoincrement())
+  name          String
+  description   String?
+  targetAmount  Float
+  currentAmount Float            @default(0)
+  image         String?
+  groupId       Int
+  group         Group            @relation(fields: [groupId], references: [id])
+  createdById   Int?
+  createdBy     User?            @relation("PotCreator", fields: [createdById], references: [id])
+  participants  PotParticipant[]
+  requests      PotRequest[]
+  isActive      Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+
+  @@index([groupId])
 }
 
+/// Kullanıcı ↔ Pot: birden fazla kişi aynı hedefe katkı sunar
 model PotParticipant {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  potId     Int
-  pot       Pot      @relation(fields: [potId], references: [id])
-  joinedAt  DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  potId            Int
+  user             User     @relation(fields: [userId], references: [id])
+  pot              Pot      @relation(fields: [potId], references: [id])
+  totalContributed Float    @default(0)
+  joinedAt         DateTime @default(now())
 
   @@unique([userId, potId])
+  @@index([userId])
+  @@index([potId])
 }
 
 enum RequestStatus {
@@ -120,16 +134,24 @@ enum RequestStatus {
   REJECTED
 }
 
+enum PotRequestType {
+  CONTRIBUTION
+  WITHDRAWAL
+}
+
 model PotRequest {
-  id        Int           @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   potId     Int
-  pot       Pot           @relation(fields: [potId], references: [id])
+  pot       Pot            @relation(fields: [potId], references: [id])
   userId    Int
-  user      User          @relation(fields: [userId], references: [id])
+  user      User           @relation(fields: [userId], references: [id])
   amount    Float
-  type      String        // "CONTRIBUTION" veya "WITHDRAWAL"
-  status    RequestStatus @default(PENDING)
-  createdAt DateTime      @default(now())
+  type      PotRequestType
+  status    RequestStatus  @default(PENDING)
+  createdAt DateTime       @default(now())
+
+  @@index([potId])
+  @@index([userId])
 }
 
 model Transaction {
