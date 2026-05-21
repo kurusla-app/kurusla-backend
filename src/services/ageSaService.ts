@@ -1,13 +1,8 @@
 import axios from 'axios';
 import prisma from '../config/db';
+import { isAgeSaSimulationMode } from '../utils/ageSaSimulation';
 
-/** Docker/yerel: URL yoksa veya api-sim / AGESA_SIMULATE ise gerçek HTTP çağrısı yapılmaz */
-export function isAgeSaSimulationMode(): boolean {
-  if (process.env.AGESA_SIMULATE === 'true') return true;
-  const url = process.env.AGESA_API_URL?.trim();
-  if (!url) return true;
-  return url.includes('api-sim');
-}
+export { isAgeSaSimulationMode };
 
 /**
  * AgeSA API İstemcisi

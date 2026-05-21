@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { isAgeSaSimulationMode } from '../src/services/ageSaService';
+import { isAgeSaSimulationMode } from '../src/utils/ageSaSimulation';
 
 describe('isAgeSaSimulationMode', () => {
   const original = { ...process.env };
