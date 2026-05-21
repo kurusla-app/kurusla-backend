@@ -12,6 +12,16 @@ AI Agent, veritabanına doğrudan erişmek yerine backend tarafından sunulan k�
 
 ---
 
+## 📊 AI İçgörüleri (Profil DB)
+
+Model çıktılarını kullanıcı profiline yazmak için:
+
+- **URL:** `POST /api/insights` (internal `x-api-key` veya JWT)
+- **Liste:** `GET /api/insights` (JWT)
+- **Detay:** [INSIGHTS.md](./INSIGHTS.md)
+
+---
+
 ## 💬 Mobil sohbet (Chat)
 
 Kullanıcıların doğal dilde soru sorması için ayrı endpoint:

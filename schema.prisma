@@ -50,6 +50,7 @@ model User {
   fcmToken     String?
   badges       UserBadge[]
   ailogs       AILog[]
+  aiInsights   AIInsight[]
   stats        UserStats?
   potRequests      PotRequest[]
   potParticipants  PotParticipant[]
@@ -89,6 +90,32 @@ model AILog {
   parameters Json
   response   Json?
   createdAt  DateTime @default(now())
+}
+
+/// Yusuf'un AI modelinden gelen kullanıcı profili içgörüleri
+enum InsightType {
+  SPENDING
+  SAVING
+  CATEGORY
+  GENERAL
+}
+
+model AIInsight {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  type          InsightType @default(GENERAL)
+  title         String
+  summary       String
+  content       Json?
+  source        String      @default("kurusla-ai")
+  transactionId Int?
+  isRead        Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
 
 model Badge {

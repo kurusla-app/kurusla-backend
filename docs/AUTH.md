@@ -21,6 +21,8 @@ Authorization: Bearer <token>
 
 AI sohbet: `POST /api/chat` — ayrıntı: [CHAT.md](./CHAT.md)
 
+AI içgörüleri: `GET /api/insights`, kayıt `POST /api/insights` (internal key) — [INSIGHTS.md](./INSIGHTS.md)
+
 ## Açık endpoint'ler
 
 - `POST /api/auth/register`, `POST /api/auth/login`

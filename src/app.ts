@@ -31,6 +31,7 @@ import statsRoutes from './api/stats/stats.routes';
 import statementsRoutes from './api/statements/statements.routes';
 import referralRoutes from './api/referral/referral.routes';
 import chatRoutes from './api/chat/chat.routes';
+import insightsRoutes from './api/insights/insights.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
@@ -43,6 +44,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/statements', statementsRoutes);
 app.use('/api/referral', referralRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/insights', insightsRoutes);
 
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok', message: 'Kurusla Backend TS is running!' });
