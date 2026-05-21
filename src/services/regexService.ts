@@ -8,17 +8,23 @@ export interface ParsedTransaction {
 export function parseBankMessage(text: string): ParsedTransaction | null {
   // Banka spesifik veya genel regex modelleri
   const patterns = [
-    // Genel Format: "Starbucks isyerinde 45.50 TL harcama..."
+    // Garanti SMS: "Garanti BBVA: STARBUCKS isyerinde 45,50 TL harcama..."
     {
-      regex: /(.*?) işyerinde.*?([0-9,.]+)\s*TL/i,
+      regex: /(?:Garanti\s+)?(?:BBVA:\s*)?(.+?)\s+(?:isyerinde|işyerinde)\s+([0-9,.]+)\s*TL/i,
       merchantIdx: 1,
-      amountIdx: 2
+      amountIdx: 2,
     },
-    // Alternatif: "Garanti: Starbucks firmasindan 120,50 TL"
+    // Genel: "Starbucks isyerinde 45.50 TL"
     {
-      regex: /(.*?)\s+firmasından\s+([0-9,.]+)\s*TL/i,
+      regex: /(.+?)\s+(?:isyerinde|işyerinde)\s+([0-9,.]+)\s*TL/i,
       merchantIdx: 1,
-      amountIdx: 2
+      amountIdx: 2,
+    },
+    // Alternatif: "Starbucks firmasindan 120,50 TL"
+    {
+      regex: /(.+?)\s+(?:firmasindan|firmasından)\s+([0-9,.]+)\s*TL/i,
+      merchantIdx: 1,
+      amountIdx: 2,
     },
     // Basit Format: "Harcama: Starbucks Tutar: 15.50TL"
     {
@@ -36,7 +42,10 @@ export function parseBankMessage(text: string): ParsedTransaction | null {
 
       if (amount) {
         // Gereksiz kelimeleri temizle (Banka ismi vb. başta kalmışsa)
-        merchant = merchant.replace(/.*?(?:kartınızla|BBVA|A\.Ş\.|ile|Bankası)/gi, '').trim();
+        merchant = merchant
+          .replace(/^Garanti\s+BBVA:\s*/i, '')
+          .replace(/.*?(?:kartınızla|BBVA|A\.Ş\.|ile|Bankası)/gi, '')
+          .trim();
         
         return { merchant, amount };
       }

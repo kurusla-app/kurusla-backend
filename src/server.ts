@@ -2,13 +2,19 @@ import app from './app';
 import { seedBadges } from './services/badge.service';
 import { initBadgeJobs } from './jobs/badgeJob';
 import { initRetryJob } from './jobs/retryJob';
+import { connectRedis } from './config/redis';
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  
-  // Rozet tanımlarını kontrol et/ekle
+
+  try {
+    await connectRedis();
+  } catch {
+    console.warn('⚠️ Redis yok — istatistik cache devre dışı, API çalışmaya devam eder.');
+  }
+
   await seedBadges();
   
   // Cron jobları başlat
