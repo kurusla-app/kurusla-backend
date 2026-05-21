@@ -3,13 +3,13 @@ import * as authService from '../../services/auth.service';
 
 export async function register(req: Request, res: Response): Promise<any> {
   try {
-    const { email, password } = req.body;
+    const { email, password, referralCode } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email ve şifre zorunludur.' });
     }
 
-    const user = await authService.registerUser(email, password);
+    const user = await authService.registerUser(email, password, referralCode);
     return res.status(201).json({ message: 'Kayıt başarılı', user });
 
   } catch (error: any) {

@@ -3,18 +3,19 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Kullanıcı Kayıt (Register) Servisi
-export async function registerUser(email: string, passwordRaw: string) {
-  // 1. Email kullanımda mı kontrol et
+export async function registerUser(
+  email: string,
+  passwordRaw: string,
+  referralCode?: string
+) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new Error('Bu e-posta adresi zaten kullanımda.');
   }
 
-  // 2. Şifreyi Hashle (Tuzlama/Salt ile)
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(passwordRaw, salt);
 
-  // 3. Veritabanına kaydet
   const newUser = await prisma.user.create({
     data: {
       email,
@@ -22,9 +23,37 @@ export async function registerUser(email: string, passwordRaw: string) {
     },
   });
 
-  // 4. Şifreyi geri döndürmemek için objeden çıkarıyoruz
-  const { password, ...userWithoutPassword } = newUser;
-  return userWithoutPassword;
+  let referralResult = null;
+  if (referralCode) {
+    const { ReferralService } = await import('./referral.service');
+    referralResult = await ReferralService.processReferralOnSignup(
+      newUser.id,
+      referralCode
+    );
+  }
+
+  const { ReferralService } = await import('./referral.service');
+  const ownLink = await ReferralService.getOrCreateReferralLink(newUser.id);
+
+  const freshUser = await prisma.user.findUnique({
+    where: { id: newUser.id },
+  });
+  if (!freshUser) throw new Error('Kullanıcı oluşturuldu ancak okunamadı.');
+
+  const { password, ...userWithoutPassword } = freshUser;
+
+  return {
+    ...userWithoutPassword,
+    referral: referralResult
+      ? {
+          applied: true,
+          referrerReward: referralResult.referrerReward,
+          referredReward: referralResult.referredReward,
+        }
+      : null,
+    inviteLink: ownLink.inviteLink,
+    referralCode: ownLink.referralCode,
+  };
 }
 
 // Kullanıcı Giriş (Login) Servisi

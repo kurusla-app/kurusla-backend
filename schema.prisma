@@ -22,6 +22,17 @@ enum RoundUpStep {
   STEP_50
 }
 
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+enum ReferralRewardType {
+  BALANCE_KURUS
+  AGESA_PROMO
+}
+
 model User {
   id           Int           @id @default(autoincrement())
   email        String        @unique
@@ -42,7 +53,31 @@ model User {
   potRequests      PotRequest[]
   potParticipants  PotParticipant[]
   createdPots      Pot[]            @relation("PotCreator")
+  referralCode     String?          @unique
+  referredById     Int?
+  referredBy       User?            @relation("UserReferrals", fields: [referredById], references: [id])
+  invitedUsers     User[]           @relation("UserReferrals")
+  referralsMade    Referral[]       @relation("Referrer")
+  referralReceived Referral?        @relation("ReferredUser")
   createdAt        DateTime         @default(now())
+}
+
+/// Davet Et Kazan — davet eden ile yeni üye ilişkisi
+model Referral {
+  id               Int                @id @default(autoincrement())
+  referrerId       Int
+  referrer         User               @relation("Referrer", fields: [referrerId], references: [id])
+  referredUserId   Int                @unique
+  referredUser     User               @relation("ReferredUser", fields: [referredUserId], references: [id])
+  status           ReferralStatus     @default(PENDING)
+  rewardType       ReferralRewardType @default(BALANCE_KURUS)
+  referrerReward   Float              @default(0)
+  referredReward   Float              @default(0)
+  createdAt        DateTime           @default(now())
+  completedAt      DateTime?
+
+  @@index([referrerId])
+  @@index([status])
 }
 
 model AILog {
