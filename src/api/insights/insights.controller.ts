@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { InsightType } from '@prisma/client';
+import { InsightType, Prisma } from '@prisma/client';
 import { InsightService } from '../../services/insight.service';
 import {
   getAuthenticatedUserId,
@@ -32,7 +32,7 @@ export async function createInsight(req: Request, res: Response): Promise<void> 
       type: parsed.type,
       title: parsed.title,
       summary: parsed.summary,
-      content: parsed.content,
+      content: parsed.content as Prisma.InputJsonValue | undefined,
       source: parsed.source,
       transactionId: parsed.transactionId,
     });
